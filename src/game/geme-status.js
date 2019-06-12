@@ -1,0 +1,6 @@
+export const GameStatus = {
+    DEFAULT: "DEFAULT",
+    INITIALISATION: "INITIALISATION",
+    READY: "READY",
+    IN_PROGRESS: "IN_PROGRESS"
+};
