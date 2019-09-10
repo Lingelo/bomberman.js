@@ -1,12 +1,12 @@
 import {Title} from "./menus/title";
 import {State} from "./state/state";
-import {Controller} from "./utils/controller";
+import {Keyboard} from "./utils/keyboard";
 import {Options} from "./menus/options";
-import {Scores} from "./menus/scores";
 import {Game} from "./game/game";
-import {Lobby} from "./menus/lobby";
-import {MultiPlayer} from "./multi/multi-player";
 import {Action} from "./state/actions";
+import {GAMESTATUS} from "./game/geme-status";
+import {GamePad} from "./utils/gamepad";
+import {GameUtils} from "./utils/game-utils";
 
 const screenWidth = 960;
 const screenHeight = 640;
@@ -15,7 +15,6 @@ const canvas = document.getElementById('canvas');
 canvas.width = screenWidth;
 canvas.height = screenHeight;
 const ctx = canvas.getContext('2d');
-
 
 const canvasContext = {
     screenWidth,
@@ -26,8 +25,9 @@ const canvasContext = {
 const state = new State();
 state.createStore();
 
-const controller = new Controller();
+const controller = new Keyboard();
 controller.bind();
+const gamepads = new GamePad();
 
 let currentScreen = new Title();
 document.addEventListener('state', (state) => {
@@ -39,19 +39,18 @@ document.addEventListener('state', (state) => {
             case 'OPTIONS':
                 currentScreen = new Options();
                 break;
-            case 'SCORES':
-                currentScreen = new Scores();
-                break;
-            case 'LOBBY':
-                currentScreen = new Lobby();
+            case 'NEW_GAME': {
+                const walls = GameUtils.initWalls(state.detail.map, state.detail.characters);
                 document.dispatchEvent(new CustomEvent('action', {
                     detail: {
-                        type: Action.CONNECT,
+                        type: Action.INIT_GAME,
+                        payload: {
+                            status: GAMESTATUS.IN_PROGRESS,
+                            walls
+                        }
                     }
                 }));
-                break;
-            case 'NEW_GAME': {
-                currentScreen = new Game();
+                currentScreen = new Game(state.detail.map, walls, state.detail.characters, state.detail.bonus);
             }
         }
     }
@@ -60,6 +59,7 @@ document.addEventListener('state', (state) => {
 
 const step = () => {
     currentScreen.update(canvasContext);
+    gamepads.listen();
     requestAnimationFrame(step);
 };
 

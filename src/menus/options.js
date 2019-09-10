@@ -5,7 +5,7 @@ export class Options extends Menu {
         super();
         this.code = "OPTIONS";
         document.addEventListener('state', (state) => {
-            this.manageOverflowMenu(1, 4, state.detail.selectedOption);
+            this.manageOverflowMenu(1, 2, state.detail.selectedOption);
         });
     }
 
@@ -14,21 +14,15 @@ export class Options extends Menu {
 
         canvasContext.ctx.font = 50 + "px Bomberman";
         canvasContext.ctx.fillStyle = this.getColorMenu("Sound");
-        canvasContext.ctx.fillText(" Sound : yes", canvasContext.screenWidth / 2, 250);
-        canvasContext.ctx.fillStyle = this.getColorMenu("Nickname");
-        canvasContext.ctx.fillText(" Nickname : Freuhlon", canvasContext.screenWidth / 2, 320);
-        canvasContext.ctx.fillStyle = this.getColorMenu("Color");
-        canvasContext.ctx.fillText(" Color : red", canvasContext.screenWidth / 2, 390);
+        canvasContext.ctx.fillText(" Sound : yes", canvasContext.screenWidth / 2, 330);
         canvasContext.ctx.fillStyle = this.getColorMenu("Retour");
-        canvasContext.ctx.fillText("Retour", canvasContext.screenWidth / 2, 540);
+        canvasContext.ctx.fillText("Retour", canvasContext.screenWidth / 2, 420);
     }
 
     getColorMenu(menu) {
 
         if (menu === "Sound" && this.selectedOption === 1
-            || menu === "Nickname" && this.selectedOption === 2
-            || menu === "Color" && this.selectedOption === 3
-            || menu === "Retour" && this.selectedOption === 4) {
+            || menu === "Retour" && this.selectedOption === 2) {
             return "yellow";
         } else {
             return "rgb(250, 250, 250)"

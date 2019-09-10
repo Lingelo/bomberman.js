@@ -5,7 +5,7 @@ import {Action} from "../state/actions";
 
 export class Character {
 
-    constructor(color, x, y, direction) {
+    constructor(color, x, y, direction, gamePadIndex) {
         this.x = x;
         this.y = y;
         this.direction = direction;
@@ -19,6 +19,7 @@ export class Character {
         this.bombMax = 1;
         this.bombUsed = 0;
         this.pixelsToTreat = 0;
+        this.gamePadIndex = gamePadIndex;
         this.nextFrame = this.getNextFrame(direction);
         document.addEventListener('state', (state) => {
             this.bonus = state.detail.bonus;
@@ -166,6 +167,7 @@ export class Character {
                         type: Action.GET_BONUS,
                         payload: {
                             bonus: bonus,
+                            playerColor: this.color
                         }
                     }
                 }));

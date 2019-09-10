@@ -1,6 +1,6 @@
-export const GameStatus = {
-    DEFAULT: "DEFAULT",
+export const GAMESTATUS = {
     INITIALISATION: "INITIALISATION",
     READY: "READY",
-    IN_PROGRESS: "IN_PROGRESS"
+    IN_PROGRESS: "IN_PROGRESS",
+    END: "END"
 };

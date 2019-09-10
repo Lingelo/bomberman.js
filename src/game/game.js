@@ -5,11 +5,11 @@ import {CharacterStatus} from "./character-status";
 import {Action} from "../state/actions";
 
 export class Game {
-    constructor() {
-        this.map = [];
-        this.characters = [];
-        this.walls = [];
-        this.bonus = [];
+    constructor(map, walls, characters, bonus) {
+        this.map = map;
+        this.characters = characters;
+        this.walls = walls;
+        this.bonus = bonus;
         this.bombs = [];
         this.blasts = [];
         this.code = "NEW_GAME";
@@ -119,7 +119,7 @@ export class Game {
     computeVictory(characters) {
 
         const aliveCharacters = this.characters.filter(character => character.status === CharacterStatus.ALIVE);
-        if (aliveCharacters.length === 1 && aliveCharacters[0].status !== CharacterStatus.VICTORIOUS) {
+        if (aliveCharacters.length === 1 && aliveCharacters[0].status !== CharacterStatus.VICTORY) {
             document.dispatchEvent(new CustomEvent('action', {
                 detail: {
                     type: Action.VICTORY, payload: {

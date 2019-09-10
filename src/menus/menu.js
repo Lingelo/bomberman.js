@@ -1,6 +1,7 @@
 import {Sprite} from "../utils/sprite";
 import {Action} from "../state/actions";
-import {GameStatus} from "../game/geme-status";
+import {COLOR} from "../game/color";
+import {GAMESTATUS} from "../game/geme-status";
 
 export class Menu {
 
@@ -8,6 +9,10 @@ export class Menu {
         this.imageTitlePosition = 800;
         this.fontSize = 30;
         this.selectedOption = 1;
+        this.playersDilayed = [];
+        document.addEventListener('state', (state) => {
+            this.playersDilayed = state.detail.characters;
+        });
     }
 
     update(canvasContext) {
@@ -19,6 +24,38 @@ export class Menu {
         canvasContext.ctx.fillRect(0, 400, canvasContext.screenWidth, canvasContext.screenHeight);
         canvasContext.ctx.fillStyle = "lightblue";
         canvasContext.ctx.fillRect(0, 0, canvasContext.screenWidth, 400);
+
+
+        if(this.playersDilayed && this.playersDilayed.length === 0) {
+            canvasContext.ctx.font = "20px Bomberman";
+            canvasContext.ctx.textAlign = "center";
+            canvasContext.ctx.textBaseline = "top";
+            canvasContext.ctx.fillStyle = "red";
+            canvasContext.ctx.fillText("Connect 2 controllers", (canvasContext.screenWidth / 2) + 5, 20);
+        } else {
+            let offset = 100;
+            canvasContext.ctx.font = "25px Bomberman";
+            canvasContext.ctx.textAlign = "center";
+            canvasContext.ctx.textBaseline = "top";
+            canvasContext.ctx.fillStyle = "red";
+
+            this.playersDilayed.forEach( (player, index) => {
+                if(index === COLOR.WHITE) {
+                    canvasContext.ctx.fillStyle = "white";
+                }
+                if(index === COLOR.BLACK) {
+                    canvasContext.ctx.fillStyle = "black";
+                }
+                if(index === COLOR.RED) {
+                    canvasContext.ctx.fillStyle = "red";
+                }
+                if(index === COLOR.BLUE) {
+                    canvasContext.ctx.fillStyle = "blue";
+                }
+                canvasContext.ctx.fillText("Player " + (index + 1), 100 + offset, 20);
+                offset = offset + 200;
+            });
+        }
 
         if (this.imageTitlePosition > 170) {
             this.imageTitlePosition -= 15;
@@ -71,22 +108,14 @@ export class Menu {
 
     static getNewScreen(selectionOption, currentScreen, gameStatus) {
         if (currentScreen === "TITLE") {
-            if (selectionOption === 1) {
-                return "LOBBY";
+            if (selectionOption === 1 && gameStatus === GAMESTATUS.READY) {
+                return "NEW_GAME";
             } else if (selectionOption === 2) {
-                return "SCORES";
-            } else if (selectionOption === 3) {
                 return "OPTIONS"
             }
         }
         if (currentScreen === "OPTIONS") {
             return "TITLE";
-        }
-        if (currentScreen === "SCORES") {
-            return "TITLE";
-        }
-        if (currentScreen === "LOBBY" && gameStatus === GameStatus.READY) {
-            return "NEW_GAME";
         }
     }
 

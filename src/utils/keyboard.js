@@ -1,8 +1,9 @@
 import {Action} from "../state/actions";
 
-export class Controller {
+export class Keyboard {
 
     constructor() {
+
         this.keys = {
             up: 38,
             down: 40,
@@ -21,10 +22,6 @@ export class Controller {
         this.handledKeys[this.keys.space] = false;
         this.handledKeys[this.keys.enter] = false;
         this.handledKeys[this.keys.escape] = false;
-
-        document.addEventListener('state', (state) => {
-            this.currentPlayerColor = state.detail.currentPlayerColor;
-        });
     }
 
     bind() {
@@ -37,12 +34,22 @@ export class Controller {
             if (that.handledKeys[e.keyCode]) {
                 that.handledKeys[e.keyCode] = true;
             }
+
             switch (e.keyCode) {
+
                 case that.keys.up:
-                    document.dispatchEvent(new CustomEvent('action', {detail: {type: Action.UP}}));
+                    document.dispatchEvent(new CustomEvent('action', {
+                        detail: {
+                            type: Action.UP,
+                        },
+                    }));
                     break;
                 case that.keys.down:
-                    document.dispatchEvent(new CustomEvent('action', {detail: {type: Action.DOWN}}));
+                    document.dispatchEvent(new CustomEvent('action', {
+                        detail: {
+                            type: Action.DOWN,
+                        },
+                    }));
                     break;
                 case that.keys.enter:
                     document.dispatchEvent(new CustomEvent('action', {detail: {type: Action.ENTER}}));
@@ -51,19 +58,17 @@ export class Controller {
                     document.dispatchEvent(new CustomEvent('action', {detail: {type: Action.RESET}}));
                     break;
                 case that.keys.left:
-                    document.dispatchEvent(new CustomEvent('action', {detail: {type: Action.LEFT}}));
-                    break;
-                case that.keys.right:
-                    document.dispatchEvent(new CustomEvent('action', {detail: {type: Action.RIGHT}}));
-                    break;
-                case that.keys.space:
                     document.dispatchEvent(new CustomEvent('action', {
                         detail: {
-                            type: Action.DROP_BOMB,
-                            payload: {
-                                currentPlayerColor: that.currentPlayerColor
-                            }
-                        }
+                            type: Action.LEFT,
+                        },
+                    }));
+                    break;
+                case that.keys.right:
+                    document.dispatchEvent(new CustomEvent('action', {
+                        detail: {
+                            type: Action.RIGHT,
+                        },
                     }));
                     break;
             }
