@@ -39,11 +39,7 @@ export class State {
             currentScreenCode: "TITLE",
             map,
             characters: [],
-            bonus: [
-                new Bonus(4, 5, BONUSTYPE.BOMB),
-                new Bonus(5, 5, BONUSTYPE.POWER),
-                new Bonus(1, 2, BONUSTYPE.POWER)
-            ],
+            bonus: [],
             bombs: [],
             walls: [],
             blasts: []
@@ -188,6 +184,7 @@ export class State {
                     gameStatus: GAMESTATUS.IN_PROGRESS,
                     currentScreenCode: action.payload.currentScreenCode,
                     walls: action.payload.walls,
+                    bonus: action.payload.bonus
                 };
 
             case Action.GET_BONUS:

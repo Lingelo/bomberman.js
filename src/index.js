@@ -41,16 +41,18 @@ document.addEventListener('state', (state) => {
                 break;
             case 'NEW_GAME': {
                 const walls = GameUtils.initWalls(state.detail.map, state.detail.characters);
+                const bonus = GameUtils.initBonus(state.detail.map, state.detail.characters);
                 document.dispatchEvent(new CustomEvent('action', {
                     detail: {
                         type: Action.INIT_GAME,
                         payload: {
                             status: GAMESTATUS.IN_PROGRESS,
-                            walls
+                            walls,
+                            bonus
                         }
                     }
                 }));
-                currentScreen = new Game(state.detail.map, walls, state.detail.characters, state.detail.bonus);
+                currentScreen = new Game(state.detail.map, walls, state.detail.characters, bonus);
             }
         }
     }
