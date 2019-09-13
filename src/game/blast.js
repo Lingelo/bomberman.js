@@ -15,17 +15,13 @@ export class Blast {
         this.flames = [];
         this.bombs = bombs;
         this.characters = characters;
-        this.cpt = -1;
         this.character = character;
-
+        this.canPropagate = {north: true, east: true, south : true, west: true}
     }
 
     render(canvasContext) {
         let radius = this.radius;
         this.animationState++;
-        this.cpt++;
-        this.flames.push([]);
-
 
         if (this.time++ > this.timer) {
             const currentBlast = this;
@@ -37,7 +33,187 @@ export class Blast {
             }));
         }
 
-        let power;
+        let power = this.computePower();
+
+        if (this.animationState <= this.radius) {
+            radius = this.animationState;
+        }
+
+        this.flames.push(new Flame(this.x, this.y, power, CARDINAL.MIDDLE));
+
+        this.computeNorth(radius, power, this.canPropagate.north);
+        this.computeEast(radius, power, this.canPropagate.east);
+        this.computeSouth(radius, power, this.canPropagate.south);
+        this.computeWest(radius, power, this.canPropagate.west);
+
+        const character = this.character;
+        this.flames.forEach(flame => {
+            flame.render(canvasContext);
+
+            this.bombs.forEach(function (bomb) {
+                if (bomb.x === flame.x && bomb.y === flame.y) {
+
+                    document.dispatchEvent(new CustomEvent('action', {
+                        detail: {
+                            type: Action.ADD_BLAST,
+                            payload: {bomb, character}
+                        }
+                    }));
+
+                    document.dispatchEvent(new CustomEvent('action', {
+                        detail: {
+                            type: Action.BOMB_EXPLODED,
+                            payload: {bomb: bomb}
+                        }
+                    }));
+                }
+            });
+
+            this.characters.forEach(function (character) {
+                if (character.x === flame.x && character.y === flame.y) {
+                    document.dispatchEvent(new CustomEvent('action', {
+                        detail: {
+                            type: Action.KILL,
+                            payload: {character: character}
+                        }
+                    }));
+                }
+            });
+
+        });
+    }
+
+    computeNorth(radius, power) {
+        let indexBlastNorth = 1;
+        while (indexBlastNorth < this.radius) {
+
+            const canPropagate =
+                this.map[this.y - indexBlastNorth][this.x] === 2 && this.canPropagate.north;
+            const canVanish = this.walls[this.x][this.y - indexBlastNorth] && !this.walls[this.x][this.y - indexBlastNorth].destroyed;
+
+            if(!canPropagate) {
+                break;
+            } else if (canVanish && canPropagate) {
+                this.canPropagate.north = false;
+                this.flames.push(new Flame(this.x, this.y - indexBlastNorth, power, CARDINAL.NORTH_END));
+                document.dispatchEvent(new CustomEvent('action', {
+                    detail: {
+                        type: Action.DESTROY,
+                        payload: {destroyedX: this.x, destroyedY: this.y - 1}
+                    }
+                }));
+
+            } else if(!canVanish && canPropagate) {
+                if ((indexBlastNorth + 1) === this.radius) {
+                    this.flames.push(new Flame(this.x, this.y - indexBlastNorth, power, CARDINAL.NORTH_END));
+                } else {
+                    this.flames.push(new Flame(this.x, this.y - indexBlastNorth, power, CARDINAL.NORTH_MIDDLE));
+                }
+            }
+            indexBlastNorth++;
+
+        }
+    }
+
+    computeEast(radius, power) {
+        let indexBlastEast = 1;
+        while (indexBlastEast < this.radius) {
+
+            const canPropagate =
+                this.map[this.y][this.x + indexBlastEast] === 2 && this.canPropagate.east;
+            const canVanish = this.walls[this.x + indexBlastEast][this.y] && !this.walls[this.x + indexBlastEast][this.y].destroyed;
+
+            if(!canPropagate) {
+                break;
+            } else if (canPropagate && canVanish) {
+                this.canPropagate.east = false;
+                this.flames.push(new Flame(this.x + indexBlastEast, this.y, power, CARDINAL.EAST_END));
+                document.dispatchEvent(new CustomEvent('action', {
+                    detail: {
+                        type: Action.DESTROY,
+                        payload: {destroyedX: this.x + indexBlastEast, destroyedY: this.y}
+                    }
+                }));
+
+            } else if(canPropagate && !canVanish) {
+                if ((indexBlastEast + 1) === this.radius) {
+                    this.flames.push(new Flame(this.x + indexBlastEast, this.y, power, CARDINAL.EAST_END));
+                } else {
+                    this.flames.push(new Flame(this.x + indexBlastEast, this.y, power, CARDINAL.EAST_MIDDLE));
+                }
+            }
+            indexBlastEast++;
+
+        }
+    }
+
+    computeSouth(radius, power) {
+        let indexBlastSouth = 1;
+        while (indexBlastSouth < this.radius) {
+
+            const canPropagate =
+                this.map[this.y + indexBlastSouth][this.x] === 2 && this.canPropagate.south;
+            const canVanish = this.walls[this.x][this.y + indexBlastSouth] && !this.walls[this.x][this.y + indexBlastSouth].destroyed;
+
+            if(!canPropagate) {
+                break;
+            } else if (canPropagate && canVanish) {
+                this.canPropagate.south = false;
+                this.flames.push(new Flame(this.x, this.y + indexBlastSouth, power, CARDINAL.SOUTH_END));
+                document.dispatchEvent(new CustomEvent('action', {
+                    detail: {
+                        type: Action.DESTROY,
+                        payload: {destroyedX: this.x, destroyedY: this.y + indexBlastSouth}
+                    }
+                }));
+
+            } else if(canPropagate && !canVanish) {
+                if ((indexBlastSouth + 1) === this.radius) {
+                    this.flames.push(new Flame(this.x, this.y + indexBlastSouth, power, CARDINAL.SOUTH_END));
+                } else {
+                    this.flames.push(new Flame(this.x, this.y + indexBlastSouth, power, CARDINAL.SOUTH_MIDDLE));
+                }
+            }
+            indexBlastSouth++;
+
+        }
+    }
+
+    computeWest(radius, power) {
+
+        let indexBlastWest = 1;
+        while (indexBlastWest < this.radius) {
+
+            const canPropagate =
+                this.map[this.y][this.x - indexBlastWest] === 2 && this.canPropagate.west;
+            const canVanish = this.walls[this.x - indexBlastWest][this.y] && !this.walls[this.x - indexBlastWest][this.y].destroyed;
+
+            if(!canPropagate) {
+                break;
+            } else if (canPropagate && canVanish) {
+                this.canPropagate.west = false;
+                this.flames.push(new Flame(this.x - indexBlastWest, this.y, power, CARDINAL.WEST_END));
+                document.dispatchEvent(new CustomEvent('action', {
+                    detail: {
+                        type: Action.DESTROY,
+                        payload: {destroyedX: this.x - indexBlastWest, destroyedY: this.y}
+                    }
+                }));
+
+            } else if(canPropagate && !canVanish) {
+                if ((indexBlastWest + 1) === this.radius) {
+                    this.flames.push(new Flame(this.x - indexBlastWest, this.y, power, CARDINAL.WEST_END));
+                } else {
+                    this.flames.push(new Flame(this.x - indexBlastWest, this.y, power, CARDINAL.WEST_MIDDLE));
+                }
+            }
+            indexBlastWest++;
+
+        }
+    }
+
+    computePower() {
+        let power = 0;
         switch (this.radius) {
             case 1 :
                 power = 0;
@@ -58,158 +234,6 @@ export class Blast {
                 power = 2;
                 break;
         }
-
-        if (this.animationState <= this.radius) {
-            radius = this.animationState;
-        }
-
-        this.flames[this.cpt].push(new Flame(this.x, this.y, power, CARDINAL.MIDDLE));
-
-        for (let i = 1, l = radius; i <= l; i++) {
-            if (this.map[this.y - i][this.x] !== 2) {
-                i = radius + 1;
-            } else {
-                if (this.walls[this.x][this.y - i]) {
-                    this.flames[this.cpt].push(new Flame(this.x, this.y - i, power, CARDINAL.NORTH_END));
-
-                    if (!this.walls[this.x][this.y - i].destroyed) {
-                        document.dispatchEvent(new CustomEvent('action', {
-                            detail: {
-                                type: Action.DESTROY,
-                                payload: {destroyedX: this.x, destroyedY: this.y - 1}
-                            }
-                        }));
-                    }
-
-                    i = radius + 1;
-                } else {
-                    if (i === l || this.map[this.y - i - 1][this.x] !== 2) {
-                        this.flames[this.cpt].push(new Flame(this.x, this.y - i, power, CARDINAL.NORTH_END));
-                    } else {
-                        this.flames[this.cpt].push(new Flame(this.x, this.y - i, power, CARDINAL.NORTH_MIDDLE));
-                    }
-                }
-            }
-        }
-
-        for (let i = 1, l = radius; i <= l; i++) {
-            if (this.map[this.y][this.x + i] !== 2) {
-
-                i = radius + 1;
-            } else {
-                if (this.walls[this.x + i][this.y]) {
-                    this.flames[this.cpt].push(new Flame(this.x + i, this.y, power, CARDINAL.EAST_END));
-
-                    if (!this.walls[this.x + i][this.y].destroyed) {
-                        document.dispatchEvent(new CustomEvent('action', {
-                            detail: {
-                                type: Action.DESTROY,
-                                payload: {destroyedX: this.x + i, destroyedY: this.y}
-                            }
-                        }));
-                    }
-
-                    i = radius + 1;
-                } else {
-                    if (i === l || this.map[this.y][this.x + i + 1] !== 2) {
-                        this.flames[this.cpt].push(new Flame(this.x + i, this.y, power, CARDINAL.EAST_END));
-                    } else {
-                        this.flames[this.cpt].push(new Flame(this.x + i, this.y, power, CARDINAL.EAST_MIDDLE));
-                    }
-                }
-            }
-        }
-
-        for (let i = 1, l = radius; i <= l; i++) {
-            if (this.map[this.y + i][this.x] !== 2) {
-                i = radius + 1;
-            } else {
-                if (this.walls[this.x][this.y + i]) {
-                    this.flames[this.cpt].push(new Flame(this.x, this.y + i, power, CARDINAL.SOUTH_END));
-
-                    if (!this.walls[this.x][this.y + i].destroyed) {
-                        document.dispatchEvent(new CustomEvent('action', {
-                            detail: {
-                                type: Action.DESTROY,
-                                payload: {destroyedX: this.x, destroyedY: this.y + i}
-                            }
-                        }));
-                    }
-
-                    i = radius + 1;
-                } else {
-                    if (i === l || this.map[this.y + i + 1][this.x] !== 2) {
-                        this.flames[this.cpt].push(new Flame(this.x, this.y + i, power, CARDINAL.SOUTH_END));
-                    } else {
-                        this.flames[this.cpt].push(new Flame(this.x, this.y + i, power, CARDINAL.SOUTH_MIDDLE));
-                    }
-                }
-            }
-        }
-
-        for (let i = 1, l = radius; i <= l; i++) {
-            if (this.map[this.y][this.x - i] !== 2) {
-
-                i = radius + 1;
-            } else {
-                if (this.walls[this.x - i][this.y]) {
-                    this.flames[this.cpt].push(new Flame(this.x - i, this.y, power, CARDINAL.WEST_END));
-
-                    if (!this.walls[this.x - i][this.y].destroyed) {
-                        document.dispatchEvent(new CustomEvent('action', {
-                            detail: {
-                                type: Action.DESTROY,
-                                payload: {destroyedX: this.x - i, destroyedY: this.y}
-                            }
-                        }));
-                    }
-
-                    i = radius + 1;
-                } else {
-                    if (i === l || this.map[this.y][this.x - i - 1] !== 2) {
-                        this.flames[this.cpt].push(new Flame(this.x - i, this.y, power, CARDINAL.WEST_END));
-                    } else {
-                        this.flames[this.cpt].push(new Flame(this.x - i, this.y, power, CARDINAL.WEST_MIDDLE));
-                    }
-                }
-            }
-        }
-
-        if (this.flames[this.cpt]) {
-            for (let i = 0, l = this.flames[this.cpt].length; i < l; i++) {
-                const flame = this.flames[this.cpt][i];
-                const character = this.character;
-                flame.render(canvasContext);
-
-                this.bombs.forEach(function (bomb) {
-                    if (bomb.x === flame.x && bomb.y === flame.y) {
-                        document.dispatchEvent(new CustomEvent('action', {
-                            detail: {
-                                type: Action.ADD_BLAST,
-                                payload: {bomb: bomb, character: character}
-                            }
-                        }));
-
-                        document.dispatchEvent(new CustomEvent('action', {
-                            detail: {
-                                type: Action.BOMB_EXPLODED,
-                                payload: {bomb: bomb}
-                            }
-                        }));
-                    }
-                });
-                this.characters.forEach(function (character) {
-                    if (character.x === flame.x && character.y === flame.y) {
-                        document.dispatchEvent(new CustomEvent('action', {
-                            detail: {
-                                type: Action.KILL,
-                                payload: {character: character}
-                            }
-                        }));
-                    }
-                });
-
-            }
-        }
+        return power;
     }
 }

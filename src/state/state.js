@@ -40,9 +40,9 @@ export class State {
             map,
             characters: [],
             bonus: [
-                new Bonus(3, 3, BONUSTYPE.SPEED),
                 new Bonus(4, 5, BONUSTYPE.BOMB),
-                new Bonus(5, 5, BONUSTYPE.POWER)
+                new Bonus(5, 5, BONUSTYPE.POWER),
+                new Bonus(1, 2, BONUSTYPE.POWER)
             ],
             bombs: [],
             walls: [],
