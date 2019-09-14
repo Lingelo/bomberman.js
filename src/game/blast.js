@@ -1,6 +1,7 @@
 import {Flame} from "./flame";
 import {CARDINAL} from "./cardinal";
 import {Action} from "../state/actions";
+import {CharacterStatus} from "./character-status";
 
 export class Blast {
     constructor(bomb, character, map, walls, bombs, characters) {
@@ -70,7 +71,7 @@ export class Blast {
             });
 
             this.characters.forEach(function (character) {
-                if (character.x === flame.x && character.y === flame.y) {
+                if (character.x === flame.x && character.y === flame.y && character.status === CharacterStatus.ALIVE) {
                     document.dispatchEvent(new CustomEvent('action', {
                         detail: {
                             type: Action.KILL,

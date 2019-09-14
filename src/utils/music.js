@@ -1,8 +1,98 @@
 export class Music {
 
-    static theme() {
-        const themeMusic = new Audio("assets/title.wav");
-        themeMusic.load();
-        return themeMusic;
+    static menu() {
+
+        return import('../assets/songs/TITLE_MUSIC.ogg').then((module) => {
+            const song = module.default;
+            const audio = new Audio(song);
+            audio.load();
+            audio.loop = true;
+            return audio;
+        })
+
+    }
+
+    static menuNext() {
+
+        return import('../assets/songs/MENU_NEXT.ogg').then((module) => {
+            const song = module.default;
+            const audio = new Audio(song);
+            audio.load();
+            return audio;
+        })
+
+    }
+
+    static menuPrevious() {
+
+        return import('../assets/songs/MENU_PREVIOUS.ogg').then((module) => {
+            const song = module.default;
+            const audio = new Audio(song);
+            audio.load();
+            return audio;
+        })
+
+    }
+
+    static menuBeep() {
+
+        return import('../assets/songs/MENU_BEEP.ogg').then((module) => {
+            const song = module.default;
+            const audio = new Audio(song);
+            audio.load();
+            return audio;
+        })
+
+    }
+
+    static bombDrop() {
+
+        return import('../assets/songs/BOMB_DROP.ogg').then((module) => {
+            const song = module.default;
+            const audio = new Audio(song);
+            audio.load();
+            return audio;
+        })
+
+    }
+
+    static death() {
+
+        return import('../assets/songs/BOMBER_DEATH.ogg').then((module) => {
+            const song = module.default;
+            const audio = new Audio(song);
+            audio.load();
+            return audio;
+        })
+
+    }
+
+    static explosion() {
+        return import('../assets/songs/EXPLOSION_02_2.ogg').then((module) => {
+            const song = module.default;
+            const audio = new Audio(song);
+            audio.load();
+            return audio;
+        })
+    }
+
+    static bonus() {
+        return import('../assets/songs/BREAK_1.ogg').then((module) => {
+            const song = module.default;
+            const audio = new Audio(song);
+            audio.load();
+            return audio;
+        })
+    }
+
+    static win() {
+
+        return import('../assets/songs/VICTORY.ogg').then((module) => {
+            const song = module.default;
+            const audio = new Audio(song);
+            audio.load();
+            return audio;
+        })
+
     }
 }

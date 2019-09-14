@@ -1,11 +1,19 @@
 import {Action} from "../state/actions";
 import {DIRECTION} from "../game/direction";
 
+/**
+ * Game PAD management :
+ * X : 0
+ * LEFT : 14
+ * DOWN :  13
+ * RIGHT : 15
+ * TOP:  12
+ */
 export class GamePad {
 
     constructor() {
 
-        this.tic = 0;
+        this.toucheds = [false, false, false, false];
         window.addEventListener("gamepadconnected", function (e) {
             document.dispatchEvent(new CustomEvent('action', {
                 detail: {
@@ -16,22 +24,12 @@ export class GamePad {
                 }
             }));
         }, false);
+
         window.addEventListener("gamepaddisconnected", function (e) {
         }, false);
     }
 
     listen() {
-
-        this.tic++;
-        if(this.tic > 5) {
-            this.tic = 0;
-        }
-
-        //x : 0
-        //LEFT : 14
-        //DOWN :  13
-        //RIGHT : 15
-        //TOP:  12
 
         [navigator.getGamepads()[0],
             navigator.getGamepads()[1],
@@ -41,8 +39,9 @@ export class GamePad {
             .forEach((gamepad, index) => {
 
                 // X
-                if (gamepad.buttons[0].pressed) {
-                    if(this.tic === 4) {
+                if (gamepad.buttons[0].pressed && !this.toucheds[index]) {
+                    this.toucheds[index] = true;
+                    // if(this.tic === 4) {
                         document.dispatchEvent(new CustomEvent('action', {
                             detail: {
                                 type: Action.DROP_BOMB,
@@ -51,8 +50,9 @@ export class GamePad {
                                 }
                             }
                         }));
-                    }
-
+                    // }
+                } else if(!gamepad.buttons[0].pressed && this.toucheds[index]) {
+                    this.toucheds[index] = false;
                 }
 
                 // LEFT

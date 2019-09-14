@@ -26,6 +26,17 @@ module.exports = {
                     },
                 ],
             },
+            {
+                test: /\.(ogg)$/,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: 'assets/songs/[name].[ext]',
+                        },
+                    },
+                ],
+            },
         ],
 
     },

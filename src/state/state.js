@@ -9,6 +9,7 @@ import {DIRECTION} from "../game/direction";
 import {Bonus} from "../game/bonus";
 import {BONUSTYPE} from "../game/bonus-type";
 import {GAMESTATUS} from "../game/geme-status";
+import {Music} from "../utils/music";
 
 export class State {
 
@@ -62,23 +63,32 @@ export class State {
 
         switch (action.type) {
             case Action.UP:
+                Music.menuBeep().then(song => song.play());
                 return {
                     ...state,
                     selectedOption: state.selectedOption - 1
                 };
             case Action.DOWN:
+                Music.menuBeep().then(song => song.play());
                 return {
                     ...state,
                     selectedOption: state.selectedOption + 1
                 };
             case Action.LEFT: {
+                Music.menuBeep().then(song => song.play());
                 return state;
             }
             case Action.RIGHT: {
+                Music.menuBeep().then(song => song.play());
                 return state;
             }
             case Action.ENTER:
                 let newScreen = Menu.getNewScreen(state.selectedOption, state.currentScreenCode, state.gameStatus);
+                if(newScreen === "TITLE" && [GAMESTATUS.INITIALISATION, GAMESTATUS.READY].includes(state.gameStatus)) {
+                    Music.menuPrevious().then(song => song.play());
+                } else {
+                    Music.menuNext().then(song => song.play());
+                }
 
                 return {
                     ...state,
@@ -150,7 +160,9 @@ export class State {
                         state.characters.find(character => character.color === action.payload.color).bombUsed++;
                         let bomb = new Bomb(state.characters.find(character => character.color === action.payload.color));
                         state.bombs.push(bomb);
+                        Music.bombDrop().then(song => song.play());
                     }
+
                 }
                 return {
                     ...state,
@@ -158,6 +170,7 @@ export class State {
             case Action.BOMB_EXPLODED:
                 state.characters.find(character => character.color === action.payload.bomb.character.color).bombUsed--;
                 state.bombs.splice(state.bombs.indexOf(action.payload.bomb), 1);
+                Music.explosion().then(song => song.play());
                 return {
                     ...state
                 };
@@ -168,12 +181,14 @@ export class State {
                 };
             case Action.KILL:
                 state.characters.find(character => character.color === action.payload.character.color).status = CharacterStatus.DEAD;
+                Music.death().then(song => song.play());
                 return {
                     ...state,
                 };
             case Action.VICTORY:
                 const player = state.characters.find(character => character.color === action.payload.character.color);
                 player.status = CharacterStatus.VICTORIOUS;
+                Music.win().then(song => song.play());
                 return {
                     ...state,
                     gameStatus: GAMESTATUS.END
@@ -204,6 +219,7 @@ export class State {
                 }
                 const bonus = state.bonus.find(bonus => bonus.x === action.payload.bonus.x && bonus.y === action.payload.bonus.y);
                 state.bonus.splice(state.bonus.indexOf(bonus), 1);
+                Music.bonus().then(song => song.play());
 
                 return {
                     ...state

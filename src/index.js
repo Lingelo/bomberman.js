@@ -7,6 +7,7 @@ import {Action} from "./state/actions";
 import {GAMESTATUS} from "./game/geme-status";
 import {GamePad} from "./utils/gamepad";
 import {GameUtils} from "./utils/game-utils";
+import {Music} from "./utils/music";
 
 const screenWidth = 960;
 const screenHeight = 640;
@@ -30,6 +31,11 @@ controller.bind();
 const gamepads = new GamePad();
 
 let currentScreen = new Title();
+let songMenu;
+Music.menu().then(song => {
+    songMenu = song
+    songMenu.play();
+});
 document.addEventListener('state', (state) => {
     if (currentScreen.code !== state.detail.currentScreenCode) {
         switch (state.detail.currentScreenCode) {
@@ -40,6 +46,7 @@ document.addEventListener('state', (state) => {
                 currentScreen = new Options();
                 break;
             case 'NEW_GAME': {
+                songMenu.pause();
                 const walls = GameUtils.initWalls(state.detail.map, state.detail.characters);
                 const bonus = GameUtils.initBonus(state.detail.map, state.detail.characters);
                 document.dispatchEvent(new CustomEvent('action', {
