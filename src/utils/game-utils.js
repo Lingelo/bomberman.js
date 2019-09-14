@@ -46,15 +46,22 @@ export class GameUtils {
     static initBonus(map, characters) {
 
         const bonus = [];
-        const charactersCoords = characters.map(character => {
-            return character.x.toString()+character.y.toString();
+        const excludedCoords = [];
+        characters.map(character => {
+            return {x : character.x, y: character.y};
+        }).forEach(coords => {
+            excludedCoords.push(coords.x.toString()+coords.y.toString());
+            excludedCoords.push((coords.x - 1).toString()+(coords.y).toString());
+            excludedCoords.push((coords.x).toString()+(coords.y - 1).toString());
+            excludedCoords.push((coords.x + 1).toString()+(coords.y).toString());
+            excludedCoords.push((coords.x).toString()+(coords.y + 1 ).toString());
         });
 
         for (let x = 0, l = map[0].length; x < l; x++) {
             for (let y = 0, z = map.length; y < z; y++) {
                 if (map[y][x] === 2) {
                     let randomInt = this.getRandomInt(20);
-                    if(charactersCoords.includes(x.toString()+y.toString())) {
+                    if(excludedCoords.includes(x.toString()+y.toString())) {
                         continue;
                     }
 

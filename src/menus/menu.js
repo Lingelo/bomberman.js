@@ -2,7 +2,6 @@ import {Sprite} from "../utils/sprite";
 import {Action} from "../state/actions";
 import {COLOR} from "../game/color";
 import {GAMESTATUS} from "../game/geme-status";
-import {Music} from "../utils/music";
 
 export class Menu {
 
