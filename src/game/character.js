@@ -170,8 +170,8 @@ export class Character {
             }
         });
 
-        for (let bomb in state.bombs) {
-            if (state.bombs[bomb].x === this.nextFrame.x && state.bombs[bomb].y === this.nextFrame.y) {
+        for (let item of state.bombs) {
+            if (item.x === this.nextFrame.x && item.y === this.nextFrame.y) {
                 return;
             }
         }
