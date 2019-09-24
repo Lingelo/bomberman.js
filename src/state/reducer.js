@@ -26,7 +26,7 @@ const map = [
     [8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4]
 ];
 
-const initialState =  {
+const initialState = {
     gameStatus: GAMESTATUS.INITIALISATION,
     selectedOption: 1,
     currentScreenCode: "TITLE",
@@ -62,7 +62,7 @@ function reducer(action, state = initialState) {
         }
         case Action.ENTER:
             let newScreen = Menu.getNewScreen(state.selectedOption, state.currentScreenCode, state.gameStatus);
-            if(newScreen === "TITLE" && [GAMESTATUS.INITIALISATION, GAMESTATUS.READY].includes(state.gameStatus)) {
+            if (newScreen === "TITLE" && [GAMESTATUS.INITIALISATION, GAMESTATUS.READY].includes(state.gameStatus)) {
                 Music.menuPrevious().then(song => song.play());
             } else {
                 Music.menuNext().then(song => song.play());
@@ -77,29 +77,33 @@ function reducer(action, state = initialState) {
         case Action.ADD_PLAYER:
             const characters = state.characters;
             let gameStatus = state.gameStatus;
-            if (!characters.find(character => character.color === action.payload.index)) {
 
-                switch (action.payload.index) {
-                    case COLOR.WHITE:
-                        characters.push(new Character(COLOR.WHITE, 1, 1, DIRECTION.DOWN));
-                        break;
-                    case COLOR.BLACK: {
-                        characters.push(new Character(COLOR.BLACK, 1, 11, DIRECTION.DOWN));
-                        break;
+            if ([GAMESTATUS.INITIALISATION, GAMESTATUS.READY].includes(gameStatus)) {
+
+                if (!characters.find(character => character.color === action.payload.index)) {
+
+                    switch (action.payload.index) {
+                        case COLOR.WHITE:
+                            characters.push(new Character(COLOR.WHITE, 1, 1, DIRECTION.DOWN));
+                            break;
+                        case COLOR.BLACK: {
+                            characters.push(new Character(COLOR.BLACK, 1, 11, DIRECTION.DOWN));
+                            break;
+                        }
+                        case COLOR.BLUE: {
+                            characters.push(new Character(COLOR.BLUE, 13, 1, DIRECTION.DOWN));
+                            break;
+                        }
+                        case COLOR.RED:
+                            characters.push(new Character(COLOR.RED, 13, 11, DIRECTION.DOWN));
+                            break;
                     }
-                    case COLOR.BLUE: {
-                        characters.push(new Character(COLOR.BLUE, 13, 1, DIRECTION.DOWN));
-                        break;
-                    }
-                    case COLOR.RED:
-                        characters.push(new Character(COLOR.RED, 13, 11, DIRECTION.DOWN));
-                        break;
+
                 }
 
-            }
-
-            if(characters.length >= 2) {
-                gameStatus = GAMESTATUS.READY;
+                if (characters.length >= 2) {
+                    gameStatus = GAMESTATUS.READY;
+                }
             }
 
             return {
@@ -223,4 +227,4 @@ function reducer(action, state = initialState) {
     }
 }
 
-export { reducer }
+export {reducer}
