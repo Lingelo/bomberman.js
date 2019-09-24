@@ -19,8 +19,7 @@ export class Bomb {
     render(canvasContext) {
         this.time++;
 
-        let frame = 0;
-        frame = Math.floor(this.animationState / this.animationDuration);
+        let frame = Math.floor(this.animationState / this.animationDuration);
         if (frame > 2) {
             frame %= 3;
         }

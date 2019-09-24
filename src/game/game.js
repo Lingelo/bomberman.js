@@ -113,11 +113,11 @@ export class Game {
             character.render(canvasContext);
         });
 
-        this.computeVictory(this.characters)
+        this.computeVictory()
 
     }
 
-    computeVictory(characters) {
+    computeVictory() {
 
         const aliveCharacters = this.characters.filter(character => character.status === CharacterStatus.ALIVE);
         if (aliveCharacters.length === 1 && aliveCharacters[0].status !== CharacterStatus.VICTORY) {

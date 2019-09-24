@@ -199,8 +199,8 @@ function reducer(action, state = initialState) {
                     }
                     break;
             }
-            const bonus = state.bonus.find(bonus => bonus.x === action.payload.bonus.x && bonus.y === action.payload.bonus.y);
-            state.bonus.splice(state.bonus.indexOf(bonus), 1);
+            const bonuses = state.bonus.find(bonus => bonus.x === action.payload.bonus.x && bonus.y === action.payload.bonus.y);
+            state.bonus.splice(state.bonus.indexOf(bonuses), 1);
             Music.bonus().then(song => song.play());
 
             return {
