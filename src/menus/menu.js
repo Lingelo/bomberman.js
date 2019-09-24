@@ -2,6 +2,7 @@ import {Sprite} from "../utils/sprite";
 import {Action} from "../state/actions";
 import {COLOR} from "../game/color";
 import {GAMESTATUS} from "../game/geme-status";
+import {dispatch, getState, subscribe} from "../state/redux";
 
 export class Menu {
 
@@ -10,8 +11,9 @@ export class Menu {
         this.fontSize = 30;
         this.selectedOption = 1;
         this.playersDilayed = [];
-        document.addEventListener('state', (state) => {
-            this.playersDilayed = state.detail.characters;
+
+        subscribe( ()=> {
+            this.playersDilayed = getState().characters;
         });
     }
 
@@ -88,21 +90,19 @@ export class Menu {
         this.selectedOption = selectedOption;
         if (selectedOption > maxSelectableOption) {
             this.selectedOption = maxSelectableOption;
-            document.dispatchEvent(new CustomEvent('action', {
-                detail: {
-                    type: Action.MENU_OVERFLOW,
-                    payload: {selectedOption: this.selectedOption}
-                }
-            }));
+
+            dispatch({
+                type: Action.MENU_OVERFLOW,
+                payload: {selectedOption: this.selectedOption}
+            });
         }
         if (selectedOption < minSelectableOption) {
             this.selectedOption = minSelectableOption;
-            document.dispatchEvent(new CustomEvent('action', {
-                detail: {
-                    type: Action.MENU_OVERFLOW,
-                    payload: {selectedOption: this.selectedOption}
-                }
-            }));
+
+            dispatch({
+                type: Action.MENU_OVERFLOW,
+                payload: {selectedOption: this.selectedOption}
+            });
         }
     }
 

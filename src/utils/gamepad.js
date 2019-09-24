@@ -1,5 +1,6 @@
 import {Action} from "../state/actions";
 import {DIRECTION} from "../game/direction";
+import {dispatch} from "../state/redux";
 
 /**
  * Game PAD management :
@@ -15,14 +16,13 @@ export class GamePad {
 
         this.toucheds = [false, false, false, false];
         window.addEventListener("gamepadconnected", function (e) {
-            document.dispatchEvent(new CustomEvent('action', {
-                detail: {
-                    type: Action.ADD_PLAYER,
-                    payload: {
-                        index: e.gamepad.index
-                    }
+
+            dispatch({
+                type: Action.ADD_PLAYER,
+                payload: {
+                    index: e.gamepad.index
                 }
-            }));
+            });
         }, false);
 
         window.addEventListener("gamepaddisconnected", function (e) {
@@ -41,70 +41,59 @@ export class GamePad {
                 // X
                 if (gamepad.buttons[0].pressed && !this.toucheds[index]) {
                     this.toucheds[index] = true;
-                    // if(this.tic === 4) {
-                        document.dispatchEvent(new CustomEvent('action', {
-                            detail: {
-                                type: Action.DROP_BOMB,
-                                payload: {
-                                    color: index
-                                }
-                            }
-                        }));
-                    // }
-                } else if(!gamepad.buttons[0].pressed && this.toucheds[index]) {
+                    dispatch({
+                        type: Action.DROP_BOMB,
+                        payload: {
+                            color: index
+                        }
+                    });
+                } else if (!gamepad.buttons[0].pressed && this.toucheds[index]) {
                     this.toucheds[index] = false;
                 }
 
                 // LEFT
                 if (gamepad.buttons[14].pressed) {
-                    document.dispatchEvent(new CustomEvent('action', {
-                        detail: {
-                            type: Action.MOVE,
-                            payload: {
-                                color: index,
-                                direction: DIRECTION.LEFT
-                            }
-                        },
-                    }));
+
+                    dispatch({
+                        type: Action.MOVE,
+                        payload: {
+                            color: index,
+                            direction: DIRECTION.LEFT
+                        }
+                    });
                 }
 
                 // DOWN
                 if (gamepad.buttons[13].pressed) {
-                    document.dispatchEvent(new CustomEvent('action', {
-                        detail: {
-                            type: Action.MOVE,
-                            payload: {
-                                color: index,
-                                direction: DIRECTION.DOWN
-                            }
-                        },
-                    }));
+                    dispatch({
+                        type: Action.MOVE,
+                        payload: {
+                            color: index,
+                            direction: DIRECTION.DOWN
+                        }
+                    });
                 }
 
                 // RIGHT
                 if (gamepad.buttons[15].pressed) {
-                    document.dispatchEvent(new CustomEvent('action', {
-                        detail: {
-                            type: Action.MOVE,
-                            payload: {
-                                color: index,
-                                direction: DIRECTION.RIGHT
-                            }
-                        },
-                    }));
+                    dispatch({
+                        type: Action.MOVE,
+                        payload: {
+                            color: index,
+                            direction: DIRECTION.RIGHT
+                        }
+                    });
                 }
 
                 // UP
                 if (gamepad.buttons[12].pressed) {
-                    document.dispatchEvent(new CustomEvent('action', {
-                        detail: {
-                            type: Action.MOVE,
-                            payload: {
-                                color: index,
-                                direction: DIRECTION.TOP
-                            }
-                        },
-                    }));
+                    dispatch({
+                        type: Action.MOVE,
+                        payload: {
+                            color: index,
+                            direction: DIRECTION.TOP
+                        }
+                    });
                 }
             });
 

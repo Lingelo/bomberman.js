@@ -3,6 +3,7 @@ import {Board} from "./board";
 import {Block} from "./block";
 import {CharacterStatus} from "./character-status";
 import {Action} from "../state/actions";
+import {dispatch, getState, subscribe} from "../state/redux";
 
 export class Game {
     constructor(map, walls, characters, bonus) {
@@ -14,13 +15,13 @@ export class Game {
         this.blasts = [];
         this.code = "NEW_GAME";
 
-        document.addEventListener('state', (state) => {
-            this.walls = state.detail.walls;
-            this.characters = state.detail.characters;
-            this.bonus = state.detail.bonus;
-            this.bombs = state.detail.bombs;
-            this.blasts = state.detail.blasts;
-            this.map = state.detail.map;
+        subscribe(()=> {
+            this.walls = getState().walls;
+            this.characters = getState().characters;
+            this.bonus = getState().bonus;
+            this.bombs = getState().bombs;
+            this.blasts = getState().blasts;
+            this.map = getState().map;
         });
     }
 
@@ -120,13 +121,12 @@ export class Game {
 
         const aliveCharacters = this.characters.filter(character => character.status === CharacterStatus.ALIVE);
         if (aliveCharacters.length === 1 && aliveCharacters[0].status !== CharacterStatus.VICTORY) {
-            document.dispatchEvent(new CustomEvent('action', {
-                detail: {
-                    type: Action.VICTORY, payload: {
-                        character: aliveCharacters[0]
-                    }
+
+            dispatch({
+                type: Action.VICTORY, payload: {
+                    character: aliveCharacters[0]
                 }
-            }));
+            });
         }
     }
 }

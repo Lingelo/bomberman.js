@@ -1,5 +1,6 @@
 import {Sprite} from "../utils/sprite";
 import {Action} from "../state/actions";
+import {dispatch} from "../state/redux";
 
 export class Bomb {
     constructor(character) {
@@ -29,18 +30,17 @@ export class Bomb {
             if (this.animationDuration < 4) {
                 const currentBomb = this;
                 const currentCharacter = this.character;
-                document.dispatchEvent(new CustomEvent('action', {
-                    detail: {
-                        type: Action.ADD_BLAST,
-                        payload: {bomb: currentBomb, character: currentCharacter}
-                    }
-                }));
-                document.dispatchEvent(new CustomEvent('action', {
-                    detail: {
-                        type: Action.BOMB_EXPLODED,
-                        payload: {bomb: currentBomb}
-                    }
-                }));
+
+                dispatch({
+                    type: Action.ADD_BLAST,
+                    payload: {bomb: currentBomb, character: currentCharacter}
+                });
+
+                dispatch({
+                    type: Action.BOMB_EXPLODED,
+                    payload: {bomb: currentBomb}
+                });
+
             }
 
             this.animationDuration = this.animationDuration / 2;

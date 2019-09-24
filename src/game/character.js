@@ -2,6 +2,7 @@ import {DIRECTION} from "./direction";
 import {Sprite} from "../utils/sprite";
 import {CharacterStatus} from "./character-status";
 import {Action} from "../state/actions";
+import {dispatch, getState, subscribe} from "../state/redux";
 
 export class Character {
 
@@ -21,16 +22,11 @@ export class Character {
         this.pixelsToTreat = 0;
         this.gamePadIndex = gamePadIndex;
         this.nextFrame = this.getNextFrame(direction);
-        document.addEventListener('state', (state) => {
-            this.bonus = state.detail.bonus;
-            const player = state.detail.characters.find(character => character.color === state.detail.currentPlayerColor);
-            if(player) {
-                this.radius = player.radius;
-                this.animationDuration = player.animationDuration;
-                this.bombMax = player.bombMax;
-            }
 
+        subscribe(() => {
+            this.bonus = getState().bonus;
         });
+
     }
 
 
@@ -162,15 +158,15 @@ export class Character {
 
         this.bonus.forEach(bonus => {
             if (bonus.x === this.nextFrame.x && bonus.y === this.nextFrame.y) {
-                document.dispatchEvent(new CustomEvent('action', {
-                    detail: {
-                        type: Action.GET_BONUS,
-                        payload: {
-                            bonus: bonus,
-                            playerColor: this.color
-                        }
+
+                dispatch({
+                    type: Action.GET_BONUS,
+                    payload: {
+                        bonus: bonus,
+                        playerColor: this.color
                     }
-                }));
+                });
+
             }
         });
 
@@ -212,7 +208,7 @@ export class Character {
         let frame = Math.floor(this.animationState / this.animationDuration);
 
         let image = 1;
-        if(frame % 2 === 0) {
+        if (frame % 2 === 0) {
             image = 0
         } else {
             image = 1;

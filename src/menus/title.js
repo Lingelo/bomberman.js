@@ -1,5 +1,6 @@
 import {Menu} from "./menu";
 import {GAMESTATUS} from "../game/geme-status";
+import {getState, subscribe} from "../state/redux";
 
 export class Title extends Menu {
 
@@ -7,9 +8,10 @@ export class Title extends Menu {
         super();
         this.code = "TITLE";
         this.ready = false;
-        document.addEventListener('state', (state) => {
-            this.manageOverflowMenu(1, 2, state.detail.selectedOption);
-            this.ready = state.detail.gameStatus === GAMESTATUS.READY;
+
+        subscribe(()=> {
+            this.manageOverflowMenu(1, 2, getState().selectedOption);
+            this.ready = getState().gameStatus === GAMESTATUS.READY;
         });
 
     }

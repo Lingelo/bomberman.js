@@ -1,5 +1,4 @@
 import {Title} from "./menus/title";
-import {State} from "./state/state";
 import {Keyboard} from "./utils/keyboard";
 import {Options} from "./menus/options";
 import {Game} from "./game/game";
@@ -8,6 +7,7 @@ import {GAMESTATUS} from "./game/geme-status";
 import {GamePad} from "./utils/gamepad";
 import {GameUtils} from "./utils/game-utils";
 import {Music} from "./utils/music";
+import {dispatch, getState, subscribe} from "./state/redux";
 
 const screenWidth = 960;
 const screenHeight = 640;
@@ -23,9 +23,6 @@ const canvasContext = {
     ctx
 };
 
-const state = new State();
-state.createStore();
-
 const controller = new Keyboard();
 controller.bind();
 const gamepads = new GamePad();
@@ -33,12 +30,13 @@ const gamepads = new GamePad();
 let currentScreen = new Title();
 let songMenu;
 Music.menu().then(song => {
-    songMenu = song
+    songMenu = song;
     songMenu.play();
 });
-document.addEventListener('state', (state) => {
-    if (currentScreen.code !== state.detail.currentScreenCode) {
-        switch (state.detail.currentScreenCode) {
+
+subscribe(() => {
+    if (currentScreen.code !== getState().currentScreenCode) {
+        switch (getState().currentScreenCode) {
             case 'TITLE':
                 currentScreen = new Title();
                 break;
@@ -47,19 +45,20 @@ document.addEventListener('state', (state) => {
                 break;
             case 'NEW_GAME': {
                 songMenu.pause();
-                const walls = GameUtils.initWalls(state.detail.map, state.detail.characters);
-                const bonus = GameUtils.initBonus(state.detail.map, state.detail.characters);
-                document.dispatchEvent(new CustomEvent('action', {
-                    detail: {
-                        type: Action.INIT_GAME,
-                        payload: {
-                            status: GAMESTATUS.IN_PROGRESS,
-                            walls,
-                            bonus
-                        }
+                const walls = GameUtils.initWalls(getState().map, getState().characters);
+                const bonus = GameUtils.initBonus(getState().map, getState().characters);
+
+                dispatch({
+                    type: Action.INIT_GAME,
+                    payload: {
+                        status: GAMESTATUS.IN_PROGRESS,
+                        walls,
+                        bonus
+
                     }
-                }));
-                currentScreen = new Game(state.detail.map, walls, state.detail.characters, bonus);
+                });
+
+                currentScreen = new Game(getState().map, walls, getState().characters, bonus);
             }
         }
     }

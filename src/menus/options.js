@@ -1,11 +1,13 @@
 import {Menu} from "./menu";
+import {getState, subscribe} from "../state/redux";
 
 export class Options extends Menu {
     constructor() {
         super();
         this.code = "OPTIONS";
-        document.addEventListener('state', (state) => {
-            this.manageOverflowMenu(1, 2, state.detail.selectedOption);
+
+        subscribe(() => {
+            this.manageOverflowMenu(1, 2, getState().selectedOption);
         });
     }
 

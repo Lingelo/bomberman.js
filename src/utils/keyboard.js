@@ -1,4 +1,5 @@
 import {Action} from "../state/actions";
+import {dispatch} from "../state/redux";
 
 export class Keyboard {
 
@@ -38,38 +39,36 @@ export class Keyboard {
             switch (e.keyCode) {
 
                 case that.keys.up:
-                    document.dispatchEvent(new CustomEvent('action', {
-                        detail: {
-                            type: Action.UP,
-                        },
-                    }));
+                    dispatch({
+                        type: Action.UP,
+                    });
+
                     break;
                 case that.keys.down:
-                    document.dispatchEvent(new CustomEvent('action', {
-                        detail: {
-                            type: Action.DOWN,
-                        },
-                    }));
+                    dispatch({
+                        type: Action.DOWN,
+                    });
+
                     break;
                 case that.keys.enter:
-                    document.dispatchEvent(new CustomEvent('action', {detail: {type: Action.ENTER}}));
+                    dispatch({
+                        type: Action.ENTER,
+                    });
                     break;
                 case that.keys.escape:
-                    document.dispatchEvent(new CustomEvent('action', {detail: {type: Action.RESET}}));
+                    dispatch({
+                        type: Action.RESET,
+                    });
                     break;
                 case that.keys.left:
-                    document.dispatchEvent(new CustomEvent('action', {
-                        detail: {
-                            type: Action.LEFT,
-                        },
-                    }));
+                    dispatch({
+                        type: Action.LEFT,
+                    });
                     break;
                 case that.keys.right:
-                    document.dispatchEvent(new CustomEvent('action', {
-                        detail: {
-                            type: Action.RIGHT,
-                        },
-                    }));
+                    dispatch({
+                        type: Action.RIGHT,
+                    });
                     break;
             }
 

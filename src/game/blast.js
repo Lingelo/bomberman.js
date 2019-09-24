@@ -2,6 +2,7 @@ import {Flame} from "./flame";
 import {CARDINAL} from "./cardinal";
 import {Action} from "../state/actions";
 import {CharacterStatus} from "./character-status";
+import {dispatch} from "../state/redux";
 
 export class Blast {
     constructor(bomb, character, map, walls, bombs, characters) {
@@ -17,7 +18,7 @@ export class Blast {
         this.bombs = bombs;
         this.characters = characters;
         this.character = character;
-        this.canPropagate = {north: true, east: true, south : true, west: true}
+        this.canPropagate = {north: true, east: true, south: true, west: true}
     }
 
     render(canvasContext) {
@@ -26,12 +27,9 @@ export class Blast {
 
         if (this.time++ > this.timer) {
             const currentBlast = this;
-            document.dispatchEvent(new CustomEvent('action', {
-                detail: {
-                    type: Action.BLAST_VANISHED,
-                    payload: {blast: currentBlast}
-                }
-            }));
+
+            dispatch({type: Action.BLAST_VANISHED, payload: {payload: {blast: currentBlast}}});
+
         }
 
         let power = this.computePower();
@@ -54,30 +52,24 @@ export class Blast {
             this.bombs.forEach(function (bomb) {
                 if (bomb.x === flame.x && bomb.y === flame.y) {
 
-                    document.dispatchEvent(new CustomEvent('action', {
-                        detail: {
-                            type: Action.ADD_BLAST,
-                            payload: {bomb, character}
-                        }
-                    }));
+                    dispatch({
+                        type: Action.ADD_BLAST,
+                        payload: {bomb, character}
+                    });
 
-                    document.dispatchEvent(new CustomEvent('action', {
-                        detail: {
-                            type: Action.BOMB_EXPLODED,
-                            payload: {bomb: bomb}
-                        }
-                    }));
+                    dispatch({
+                        type: Action.BOMB_EXPLODED,
+                        payload: {bomb: bomb}
+                    });
                 }
             });
 
             this.characters.forEach(function (character) {
                 if (character.x === flame.x && character.y === flame.y && character.status === CharacterStatus.ALIVE) {
-                    document.dispatchEvent(new CustomEvent('action', {
-                        detail: {
-                            type: Action.KILL,
-                            payload: {character: character}
-                        }
-                    }));
+                    dispatch({
+                        type: Action.KILL,
+                        payload: {character: character}
+                    });
                 }
             });
 
@@ -92,19 +84,17 @@ export class Blast {
                 this.map[this.y - indexBlastNorth][this.x] === 2 && this.canPropagate.north;
             const canVanish = this.walls[this.x][this.y - indexBlastNorth] && !this.walls[this.x][this.y - indexBlastNorth].destroyed;
 
-            if(!canPropagate) {
+            if (!canPropagate) {
                 break;
             } else if (canVanish && canPropagate) {
                 this.canPropagate.north = false;
                 this.flames.push(new Flame(this.x, this.y - indexBlastNorth, power, CARDINAL.NORTH_END));
-                document.dispatchEvent(new CustomEvent('action', {
-                    detail: {
-                        type: Action.DESTROY,
-                        payload: {destroyedX: this.x, destroyedY: this.y - 1}
-                    }
-                }));
+                dispatch({
+                    type: Action.DESTROY,
+                    payload: {destroyedX: this.x, destroyedY: this.y - 1}
+                });
 
-            } else if(!canVanish && canPropagate) {
+            } else if (!canVanish && canPropagate) {
                 if ((indexBlastNorth + 1) === this.radius) {
                     this.flames.push(new Flame(this.x, this.y - indexBlastNorth, power, CARDINAL.NORTH_END));
                 } else {
@@ -124,19 +114,18 @@ export class Blast {
                 this.map[this.y][this.x + indexBlastEast] === 2 && this.canPropagate.east;
             const canVanish = this.walls[this.x + indexBlastEast][this.y] && !this.walls[this.x + indexBlastEast][this.y].destroyed;
 
-            if(!canPropagate) {
+            if (!canPropagate) {
                 break;
             } else if (canPropagate && canVanish) {
                 this.canPropagate.east = false;
                 this.flames.push(new Flame(this.x + indexBlastEast, this.y, power, CARDINAL.EAST_END));
-                document.dispatchEvent(new CustomEvent('action', {
-                    detail: {
-                        type: Action.DESTROY,
-                        payload: {destroyedX: this.x + indexBlastEast, destroyedY: this.y}
-                    }
-                }));
+                dispatch({
+                    type: Action.DESTROY,
+                    payload: {destroyedX: this.x + indexBlastEast, destroyedY: this.y}
+                });
 
-            } else if(canPropagate && !canVanish) {
+
+            } else if (canPropagate && !canVanish) {
                 if ((indexBlastEast + 1) === this.radius) {
                     this.flames.push(new Flame(this.x + indexBlastEast, this.y, power, CARDINAL.EAST_END));
                 } else {
@@ -156,19 +145,18 @@ export class Blast {
                 this.map[this.y + indexBlastSouth][this.x] === 2 && this.canPropagate.south;
             const canVanish = this.walls[this.x][this.y + indexBlastSouth] && !this.walls[this.x][this.y + indexBlastSouth].destroyed;
 
-            if(!canPropagate) {
+            if (!canPropagate) {
                 break;
             } else if (canPropagate && canVanish) {
                 this.canPropagate.south = false;
                 this.flames.push(new Flame(this.x, this.y + indexBlastSouth, power, CARDINAL.SOUTH_END));
-                document.dispatchEvent(new CustomEvent('action', {
-                    detail: {
-                        type: Action.DESTROY,
-                        payload: {destroyedX: this.x, destroyedY: this.y + indexBlastSouth}
-                    }
-                }));
 
-            } else if(canPropagate && !canVanish) {
+                dispatch({
+                    type: Action.DESTROY,
+                    payload: {destroyedX: this.x, destroyedY: this.y + indexBlastSouth}
+                });
+
+            } else if (canPropagate && !canVanish) {
                 if ((indexBlastSouth + 1) === this.radius) {
                     this.flames.push(new Flame(this.x, this.y + indexBlastSouth, power, CARDINAL.SOUTH_END));
                 } else {
@@ -189,19 +177,18 @@ export class Blast {
                 this.map[this.y][this.x - indexBlastWest] === 2 && this.canPropagate.west;
             const canVanish = this.walls[this.x - indexBlastWest][this.y] && !this.walls[this.x - indexBlastWest][this.y].destroyed;
 
-            if(!canPropagate) {
+            if (!canPropagate) {
                 break;
             } else if (canPropagate && canVanish) {
                 this.canPropagate.west = false;
                 this.flames.push(new Flame(this.x - indexBlastWest, this.y, power, CARDINAL.WEST_END));
-                document.dispatchEvent(new CustomEvent('action', {
-                    detail: {
-                        type: Action.DESTROY,
-                        payload: {destroyedX: this.x - indexBlastWest, destroyedY: this.y}
-                    }
-                }));
 
-            } else if(canPropagate && !canVanish) {
+                dispatch({
+                    type: Action.DESTROY,
+                    payload: {destroyedX: this.x - indexBlastWest, destroyedY: this.y}
+                });
+
+            } else if (canPropagate && !canVanish) {
                 if ((indexBlastWest + 1) === this.radius) {
                     this.flames.push(new Flame(this.x - indexBlastWest, this.y, power, CARDINAL.WEST_END));
                 } else {
