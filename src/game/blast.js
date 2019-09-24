@@ -5,7 +5,7 @@ import {CharacterStatus} from "./character-status";
 import {dispatch} from "../state/redux";
 
 export class Blast {
-    constructor(bomb, character, map, walls, bombs, characters) {
+    constructor(bomb, character, map, walls, bombs, characters, bonus) {
         this.walls = walls;
         this.map = map;
         this.x = bomb.x;
@@ -18,7 +18,8 @@ export class Blast {
         this.bombs = bombs;
         this.characters = characters;
         this.character = character;
-        this.canPropagate = {north: true, east: true, south: true, west: true}
+        this.canPropagate = {north: true, east: true, south: true, west: true};
+        this.bonus = bonus;
     }
 
     render(canvasContext) {
@@ -59,6 +60,15 @@ export class Blast {
                     dispatch({
                         type: Action.BOMB_EXPLODED,
                         payload: {bomb: bomb}
+                    });
+                }
+            });
+
+            this.bonus.forEach(item => {
+                if(item.x === flame.x && item.y === flame.y) {
+                    dispatch({
+                        type: Action.BONUS_EXPLODED,
+                        payload: {item}
                     });
                 }
             });

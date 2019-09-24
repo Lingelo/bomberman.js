@@ -19,6 +19,7 @@ export const Action = {
     CONSUME_BONUS: "CONSUME_BONUS",
     GET_BONUS: "GET_BONUS",
     MOVE: "MOVE",
+    BONUS_EXPLODED: "BONUS_EXPLODED"
 
 };
 
