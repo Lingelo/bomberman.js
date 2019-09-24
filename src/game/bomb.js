@@ -29,11 +29,11 @@ export class Bomb {
         if (this.timeElapsed++ > this.accelerator) {
             if (this.animationDuration < 4) {
                 const currentBomb = this;
-                const currentCharacter = this.character;
+                const character = this.character;
 
                 dispatch({
                     type: Action.ADD_BLAST,
-                    payload: {bomb: currentBomb, character: currentCharacter}
+                    payload: {bomb: currentBomb, character: character}
                 });
 
                 dispatch({

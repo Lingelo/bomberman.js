@@ -45,7 +45,6 @@ export class Blast {
         this.computeSouth(radius, power, this.canPropagate.south);
         this.computeWest(radius, power, this.canPropagate.west);
 
-        const character = this.character;
         this.flames.forEach(flame => {
             flame.render(canvasContext);
 
@@ -54,7 +53,7 @@ export class Blast {
 
                     dispatch({
                         type: Action.ADD_BLAST,
-                        payload: {bomb, character}
+                        payload: {bomb, character : bomb.character}
                     });
 
                     dispatch({
@@ -64,7 +63,7 @@ export class Blast {
                 }
             });
 
-            this.characters.forEach(function (character) {
+            this.characters.forEach(character => {
                 if (character.x === flame.x && character.y === flame.y && character.status === CharacterStatus.ALIVE) {
                     dispatch({
                         type: Action.KILL,
