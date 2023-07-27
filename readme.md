@@ -13,7 +13,7 @@ npm run server
 ```
 
 ## Informations pour jouer
-* :point_right: Tu peux tester [ici](https://freuhlon.github.io/bomberman.js/)
+* :point_right: Tu peux tester [ici](https://lingelo.github.io/bomberman.js/)
 ### Le mapping des touches
 | Support       | Touche                             | Action                  |
 | ------------- | ---------------------------------- | ----------------------- |
