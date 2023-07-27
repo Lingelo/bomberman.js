@@ -10,6 +10,9 @@ import winner from '../assets/images/winner_bomber.png'
 
 export class Sprite {
 
+    width;
+    height;
+
     static titleWallpaper() {
         if(this.titleImage) {
             return this.titleImage;

@@ -32,8 +32,26 @@ export class Menu {
             canvasContext.ctx.font = "20px Bomberman";
             canvasContext.ctx.textAlign = "center";
             canvasContext.ctx.textBaseline = "top";
+            canvasContext.ctx.fillStyle = "yellow";
+            canvasContext.ctx.fillText("connect at least 2 controllers", (canvasContext.screenWidth / 2) + 5 + 1, 21);
             canvasContext.ctx.fillStyle = "red";
-            canvasContext.ctx.fillText("Connect 2 controllers", (canvasContext.screenWidth / 2) + 5, 20);
+            canvasContext.ctx.fillText("connect at least 2 controllers", (canvasContext.screenWidth / 2) + 5 , 20);
+            canvasContext.ctx.fillStyle = "yellow";
+            canvasContext.ctx.fillText("To start the game", (canvasContext.screenWidth / 2) + 5 + 1, 41);
+            canvasContext.ctx.fillStyle = "red";
+            canvasContext.ctx.fillText("To start the game", (canvasContext.screenWidth / 2) + 5, 40);
+        } else if(this.playersDilayed && this.playersDilayed.length === 1) {
+            canvasContext.ctx.font = "20px Bomberman";
+            canvasContext.ctx.textAlign = "center";
+            canvasContext.ctx.textBaseline = "top";
+            canvasContext.ctx.fillStyle = "yellow";
+            canvasContext.ctx.fillText("Connect at least 1 more controller", (canvasContext.screenWidth / 2) + 5 + 1, 21);
+            canvasContext.ctx.fillStyle = "red";
+            canvasContext.ctx.fillText("Connect at least 1 more controller", (canvasContext.screenWidth / 2) + 5 , 20);
+            canvasContext.ctx.fillStyle = "yellow";
+            canvasContext.ctx.fillText("To start the game", (canvasContext.screenWidth / 2) + 5 + 1, 41);
+            canvasContext.ctx.fillStyle = "red";
+            canvasContext.ctx.fillText("To start the game", (canvasContext.screenWidth / 2) + 5, 40);
         } else {
             let offset = 100;
             canvasContext.ctx.font = "25px Bomberman";
@@ -80,8 +98,8 @@ export class Menu {
         canvasContext.ctx.font = "20px Bomberman";
         canvasContext.ctx.fillStyle = "rgb(250, 250, 250)";
         canvasContext.ctx.textAlign = "center";
-        canvasContext.ctx.textBaseline = "center";
-        canvasContext.ctx.fillText("Credit : Freuhlon", (canvasContext.screenWidth / 2), this.imageTitlePosition + 440);
+        canvasContext.ctx.textBaseline = "middle";
+        canvasContext.ctx.fillText("Credit : Lingelo", (canvasContext.screenWidth / 2), this.imageTitlePosition + 440);
 
 
     }

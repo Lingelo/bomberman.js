@@ -87,6 +87,7 @@ export class GamePad {
 
                 // UP
                 if (gamepad.buttons[12].pressed) {
+                    console.log('up')
                     dispatch({
                         type: Action.MOVE,
                         payload: {

@@ -1,17 +1,5 @@
 export class Music {
 
-    static menu() {
-
-        return import('../assets/songs/TITLE_MUSIC.ogg').then((module) => {
-            const song = module.default;
-            const audio = new Audio(song);
-            audio.load();
-            audio.loop = true;
-            return audio;
-        })
-
-    }
-
     static menuNext() {
 
         return import('../assets/songs/MENU_NEXT.ogg').then((module) => {

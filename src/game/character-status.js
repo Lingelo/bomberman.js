@@ -1,6 +1,6 @@
 export const CharacterStatus = {
     ALIVE : "ALIVE",
-    VICTORIOUS : "VICTORIOUS",
+    VICTORY : "VICTORY",
     DEAD : "DEAD"
 };
 

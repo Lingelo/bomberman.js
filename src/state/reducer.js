@@ -169,7 +169,7 @@ function reducer(action, state = initialState) {
             };
         case Action.VICTORY:
             const player = state.characters.find(character => character.color === action.payload.character.color);
-            player.status = CharacterStatus.VICTORIOUS;
+            player.status = CharacterStatus.VICTORY;
             Music.win().then(song => song.play());
             return {
                 ...state,

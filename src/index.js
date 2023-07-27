@@ -6,7 +6,6 @@ import {Action} from "./state/actions";
 import {GAMESTATUS} from "./game/geme-status";
 import {GamePad} from "./utils/gamepad";
 import {GameUtils} from "./utils/game-utils";
-import {Music} from "./utils/music";
 import {dispatch, getState, subscribe} from "./state/redux";
 
 const screenWidth = 960;
@@ -28,11 +27,6 @@ controller.bind();
 const gamepads = new GamePad();
 
 let currentScreen = new Title();
-let songMenu;
-Music.menu().then(song => {
-    songMenu = song;
-    songMenu.play();
-});
 
 subscribe(() => {
     if (currentScreen.code !== getState().currentScreenCode) {
@@ -44,7 +38,6 @@ subscribe(() => {
                 currentScreen = new Options();
                 break;
             case 'NEW_GAME': {
-                songMenu.pause();
                 const walls = GameUtils.initWalls(getState().map, getState().characters);
                 const bonus = GameUtils.initBonus(getState().map, getState().characters);
 

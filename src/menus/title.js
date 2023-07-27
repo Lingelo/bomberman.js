@@ -23,7 +23,6 @@ export class Title extends Menu {
         canvasContext.ctx.fillText("New Game", canvasContext.screenWidth / 2, 330);
         canvasContext.ctx.fillStyle = this.getColorMenu("Options");
         canvasContext.ctx.fillText("Options", canvasContext.screenWidth / 2, 420);
-
     }
 
     getColorMenu(menu) {

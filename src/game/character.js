@@ -39,7 +39,7 @@ export class Character {
             case CharacterStatus.DEAD:
                 this.renderDead(canvasContext);
                 break;
-            case CharacterStatus.VICTORIOUS:
+            case CharacterStatus.VICTORY:
                 this.renderVictory(canvasContext);
                 break;
         }
