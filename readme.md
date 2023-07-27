@@ -8,8 +8,7 @@ les ressources (images et sons) proviennent du projet [Bombermaaan](http://bombe
 
 ```
 npm install       
-npm start
-npm run server
+npm run start
 ```
 
 ## Informations pour jouer
