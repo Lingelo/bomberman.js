@@ -1,6 +1,6 @@
-import {Action} from "../state/actions";
-import {DIRECTION} from "../game/direction";
-import {dispatch} from "../state/redux";
+import { Action } from '../state/actions';
+import { DIRECTION } from '../game/direction';
+import { dispatch } from '../state/redux';
 
 /**
  * Game PAD management :
@@ -11,94 +11,84 @@ import {dispatch} from "../state/redux";
  * TOP:  12
  */
 export class GamePad {
+  constructor() {
+    this.toucheds = [false, false, false, false];
+    window.addEventListener('gamepadconnected', (e) => {
+      dispatch({
+        type: Action.ADD_PLAYER,
+        payload: {
+          index: e.gamepad.index,
+        },
+      });
+    }, false);
 
-    constructor() {
+    window.addEventListener('gamepaddisconnected', () => {
+    }, false);
+  }
 
-        this.toucheds = [false, false, false, false];
-        window.addEventListener("gamepadconnected", function (e) {
+  listen() {
+    [navigator.getGamepads()[0],
+      navigator.getGamepads()[1],
+      navigator.getGamepads()[2],
+      navigator.getGamepads()[3],
+    ].filter((gamepad) => !!gamepad)
+      .forEach((gamepad, index) => {
+        // X
+        if (gamepad.buttons[0].pressed && !this.toucheds[index]) {
+          this.toucheds[index] = true;
+          dispatch({
+            type: Action.DROP_BOMB,
+            payload: {
+              color: index,
+            },
+          });
+        } else if (!gamepad.buttons[0].pressed && this.toucheds[index]) {
+          this.toucheds[index] = false;
+        }
 
-            dispatch({
-                type: Action.ADD_PLAYER,
-                payload: {
-                    index: e.gamepad.index
-                }
-            });
-        }, false);
+        // LEFT
+        if (gamepad.buttons[14].pressed) {
+          dispatch({
+            type: Action.MOVE,
+            payload: {
+              color: index,
+              direction: DIRECTION.LEFT,
+            },
+          });
+        }
 
-        window.addEventListener("gamepaddisconnected", function (e) {
-        }, false);
-    }
+        // DOWN
+        if (gamepad.buttons[13].pressed) {
+          dispatch({
+            type: Action.MOVE,
+            payload: {
+              color: index,
+              direction: DIRECTION.DOWN,
+            },
+          });
+        }
 
-    listen() {
+        // RIGHT
+        if (gamepad.buttons[15].pressed) {
+          dispatch({
+            type: Action.MOVE,
+            payload: {
+              color: index,
+              direction: DIRECTION.RIGHT,
+            },
+          });
+        }
 
-        [navigator.getGamepads()[0],
-            navigator.getGamepads()[1],
-            navigator.getGamepads()[2],
-            navigator.getGamepads()[3]
-        ].filter(gamepad => !!gamepad)
-            .forEach((gamepad, index) => {
-
-                // X
-                if (gamepad.buttons[0].pressed && !this.toucheds[index]) {
-                    this.toucheds[index] = true;
-                    dispatch({
-                        type: Action.DROP_BOMB,
-                        payload: {
-                            color: index
-                        }
-                    });
-                } else if (!gamepad.buttons[0].pressed && this.toucheds[index]) {
-                    this.toucheds[index] = false;
-                }
-
-                // LEFT
-                if (gamepad.buttons[14].pressed) {
-
-                    dispatch({
-                        type: Action.MOVE,
-                        payload: {
-                            color: index,
-                            direction: DIRECTION.LEFT
-                        }
-                    });
-                }
-
-                // DOWN
-                if (gamepad.buttons[13].pressed) {
-                    dispatch({
-                        type: Action.MOVE,
-                        payload: {
-                            color: index,
-                            direction: DIRECTION.DOWN
-                        }
-                    });
-                }
-
-                // RIGHT
-                if (gamepad.buttons[15].pressed) {
-                    dispatch({
-                        type: Action.MOVE,
-                        payload: {
-                            color: index,
-                            direction: DIRECTION.RIGHT
-                        }
-                    });
-                }
-
-                // UP
-                if (gamepad.buttons[12].pressed) {
-                    console.log('up')
-                    dispatch({
-                        type: Action.MOVE,
-                        payload: {
-                            color: index,
-                            direction: DIRECTION.TOP
-                        }
-                    });
-                }
-            });
-
-
-    }
-
+        // UP
+        if (gamepad.buttons[12].pressed) {
+          dispatch({
+            type: Action.MOVE,
+            payload: {
+              color: index,
+              direction: DIRECTION.TOP,
+            },
+          });
+        }
+      });
+  }
 }

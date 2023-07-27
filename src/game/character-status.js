@@ -1,7 +1,7 @@
 export const CharacterStatus = {
-    ALIVE : "ALIVE",
-    VICTORY : "VICTORY",
-    DEAD : "DEAD"
+  ALIVE: 'ALIVE',
+  VICTORY: 'VICTORY',
+  DEAD: 'DEAD',
 };
 
 Object.freeze(CharacterStatus);

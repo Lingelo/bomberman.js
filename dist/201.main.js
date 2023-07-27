@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkbomberman_js=self.webpackChunkbomberman_js||[]).push([[201],{201:(s,e,a)=>{a.r(e),a.d(e,{default:()=>b});const b=a.p+"assets/songs/MENU_NEXT.ogg"}}]);
+//# sourceMappingURL=201.main.js.map

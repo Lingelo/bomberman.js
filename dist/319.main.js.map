@@ -1,0 +1,1 @@
+{"version":3,"file":"319.main.js","mappings":"wIAAA,QAAe,IAA0B,0B","sources":["webpack://bomberman.js/./src/assets/songs/BREAK_1.ogg"],"sourcesContent":["export default __webpack_public_path__ + \"assets/songs/BREAK_1.ogg\";"],"names":[],"sourceRoot":""}

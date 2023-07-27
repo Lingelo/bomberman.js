@@ -1,0 +1,1 @@
+{"version":3,"file":"201.main.js","mappings":"wIAAA,QAAe,IAA0B,4B","sources":["webpack://bomberman.js/./src/assets/songs/MENU_NEXT.ogg"],"sourcesContent":["export default __webpack_public_path__ + \"assets/songs/MENU_NEXT.ogg\";"],"names":[],"sourceRoot":""}

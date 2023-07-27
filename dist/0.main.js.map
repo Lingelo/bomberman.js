@@ -1,0 +1,1 @@
+{"version":3,"file":"0.main.js","mappings":"kIAAA,QAAe,IAA0B,4B","sources":["webpack://bomberman.js/./src/assets/songs/BOMB_DROP.ogg"],"sourcesContent":["export default __webpack_public_path__ + \"assets/songs/BOMB_DROP.ogg\";"],"names":[],"sourceRoot":""}
