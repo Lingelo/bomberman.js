@@ -1,32 +1,29 @@
 # Bomberman.js
 
-Bomberman.js est une version du célébre jeu bomberman réécrit en javascript (vanillajs).
-les ressources (images et sons) proviennent du projet [Bombermaaan](http://bombermaaan.sourceforge.net/).
+Bomberman.js is a version of the famous Bomberman game rewritten in JavaScript (vanilla JS). The resources (images and sounds) are sourced from the [Bombermaaan](http://bombermaaan.sourceforge.net/) project.
 
-## Démarrer le jeu
-
+## Getting Started
 
 ```
 npm install       
 npm run start
 ```
 
-## Informations pour jouer
-* :point_right: Tu peux tester [ici](https://lingelo.github.io/bomberman.js/)
-### Le mapping des touches
-| Support       | Touche                             | Action                  |
+## How to Play
+* :point_right: You can test it [here](https://lingelo.github.io/bomberman.js/)
+
+### Key Mappings
+| Input         | Key                               | Action                  |
 | ------------- | ---------------------------------- | ----------------------- |
-| Clavier       | :arrow_down:                       | Selection vers le bas   |
-| Clavier       | :arrow_up:                         | Selection vers le haut  |
-| Clavier       | :repeat:                           | Entrer dans le menu     |
-| Manette       | :negative_squared_cross_mark:      | Déposer une bombe       |
-| Manette       | :arrow_down:                       | Déplacer vers le bas    |
-| Manette       | :arrow_up:                         | Déplacer vers le haut   |
-| Manette       | :arrow_left:                       | Déplacer vers la gauche |
-| Manette       | :arrow_right:                      | Déplacer vers la droite |
+| Keyboard      | :arrow_down:                       | Move selection down     |
+| Keyboard      | :arrow_up:                         | Move selection up       |
+| Keyboard      | :repeat:                           | Enter the menu          |
+| Controller    | :negative_squared_cross_mark:      | Place a bomb            |
+| Controller    | :arrow_down:                       | Move down               |
+| Controller    | :arrow_up:                         | Move up                 |
+| Controller    | :arrow_left:                       | Move left               |
+| Controller    | :arrow_right:                      | Move right              |
 
+## Contributing
 
-## Contribuer
-
-Les pull requests sont ouvertes ;)
-
+Pull requests are welcome ;)
