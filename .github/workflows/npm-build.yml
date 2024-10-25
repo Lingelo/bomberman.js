@@ -1,15 +1,13 @@
-name: Build
+name: Run npm install and npm build
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened]
   push:
     branches:
       - master
-  pull_request:
-    branches:
-      - master
-
 jobs:
-  build-project:
+  install-dependencies:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,10 +17,26 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '16'
 
       - name: Install dependencies
         run: npm install
+
+  build-application:
+    needs: install-dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies (from cache)
+        run: npm ci
 
       - name: Build application
         run: npm run build
