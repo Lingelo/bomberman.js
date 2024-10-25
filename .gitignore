@@ -4,4 +4,4 @@ node_modules
 package-lock.json
 yarn.lock
 test.html
-dist/assets
+dist
