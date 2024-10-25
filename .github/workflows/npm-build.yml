@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  build-bomberman.js:
+  build-project:
     runs-on: ubuntu-latest
 
     steps:
