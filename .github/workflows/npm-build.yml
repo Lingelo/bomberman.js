@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  npm-start:
+  build-bomberman.js:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,10 +19,10 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '20'
 
       - name: Install dependencies
         run: npm install
 
       - name: Build application
-        run: npm build
+        run: npm run build
