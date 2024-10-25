@@ -1,4 +1,4 @@
-name: Run npm install and npm build
+name: CI BombermanJs
 
 on:
   pull_request:
