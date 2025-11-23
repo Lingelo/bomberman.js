@@ -1,1 +1,0 @@
-{"version":3,"file":"236.main.js","mappings":"wIAAA,QAAe,IAA0B,0B","sources":["webpack://bomberman.js/./src/assets/songs/VICTORY.ogg"],"sourcesContent":["export default __webpack_public_path__ + \"assets/songs/VICTORY.ogg\";"],"names":[],"sourceRoot":""}

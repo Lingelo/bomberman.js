@@ -1,1 +1,0 @@
-{"version":3,"file":"88.main.js","mappings":"sIAAA,QAAe,IAA0B,gC","sources":["webpack://bomberman.js/./src/assets/songs/MENU_PREVIOUS.ogg"],"sourcesContent":["export default __webpack_public_path__ + \"assets/songs/MENU_PREVIOUS.ogg\";"],"names":[],"sourceRoot":""}

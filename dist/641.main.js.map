@@ -1,1 +1,0 @@
-{"version":3,"file":"641.main.js","mappings":"wIAAA,QAAe,IAA0B,+B","sources":["webpack://bomberman.js/./src/assets/songs/BOMBER_DEATH.ogg"],"sourcesContent":["export default __webpack_public_path__ + \"assets/songs/BOMBER_DEATH.ogg\";"],"names":[],"sourceRoot":""}
