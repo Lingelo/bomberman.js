@@ -1,9 +1,9 @@
+import { Action } from '../state/actions';
+import { dispatch, getState, subscribe } from '../state/redux';
 import { Ground } from './ground';
 import { Board } from './board';
 import { Block } from './block';
 import { CharacterStatus } from './character-status';
-import { Action } from '../state/actions';
-import { dispatch, getState, subscribe } from '../state/redux';
 import { BotAI } from './bot-ai';
 import type { CanvasContext, GameMap, WallGrid } from '../types';
 import type { Character } from './character';

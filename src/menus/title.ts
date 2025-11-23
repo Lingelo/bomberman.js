@@ -1,8 +1,8 @@
-import { Menu } from './menu';
 import { GAMESTATUS } from '../game/game-status';
 import { ARENAS } from '../game/arenas';
 import { COLOR } from '../game/color';
 import { getState, subscribe } from '../state/redux';
+import { Menu } from './menu';
 import type { CanvasContext, KeymapType } from '../types';
 
 export class Title extends Menu {

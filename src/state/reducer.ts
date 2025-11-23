@@ -1,5 +1,4 @@
 import { GAMESTATUS } from '../game/game-status';
-import { Action } from './actions';
 import { Music } from '../utils/music';
 import { Menu } from '../menus/menu';
 import { COLOR } from '../game/color';
@@ -10,6 +9,7 @@ import { Bomb } from '../game/bomb';
 import { CharacterStatus } from '../game/character-status';
 import { BONUSTYPE } from '../game/bonus-type';
 import { ARENAS } from '../game/arenas';
+import { Action } from './actions';
 import type { GameState, GameAction, KeymapType } from '../types';
 
 const map = [

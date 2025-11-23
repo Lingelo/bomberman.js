@@ -1,8 +1,8 @@
+import { Action } from '../state/actions';
+import { dispatch } from '../state/redux';
 import { Flame } from './flame';
 import { CARDINAL } from './cardinal';
-import { Action } from '../state/actions';
 import { CharacterStatus } from './character-status';
-import { dispatch } from '../state/redux';
 import type { CanvasContext, GameMap, WallGrid, PropagationState } from '../types';
 import type { Bomb } from './bomb';
 import type { Character } from './character';

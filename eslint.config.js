@@ -29,6 +29,7 @@ export default [
         setTimeout: 'readonly',
         Gamepad: 'readonly',
         GamepadEvent: 'readonly',
+        KeyboardEvent: 'readonly',
       },
     },
     plugins: {

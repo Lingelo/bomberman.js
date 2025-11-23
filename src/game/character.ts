@@ -1,8 +1,8 @@
-import { DIRECTION, type Direction } from './direction';
 import { Sprite } from '../utils/sprite';
-import { CharacterStatus, type CharacterStatusType } from './character-status';
 import { Action } from '../state/actions';
 import { dispatch, getState, subscribe } from '../state/redux';
+import { CharacterStatus, type CharacterStatusType } from './character-status';
+import { DIRECTION, type Direction } from './direction';
 import type { CanvasContext, Coordinate, GameState } from '../types';
 import type { Color } from './color';
 import type { Bonus } from './bonus';

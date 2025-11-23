@@ -1,5 +1,5 @@
-import { Menu } from './menu';
 import { getState, subscribe } from '../state/redux';
+import { Menu } from './menu';
 import type { CanvasContext, KeymapType } from '../types';
 
 export class Options extends Menu {

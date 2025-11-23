@@ -1,6 +1,6 @@
-import { DIRECTION, type Direction } from './direction';
 import { Action } from '../state/actions';
 import { dispatch, getState } from '../state/redux';
+import { DIRECTION, type Direction } from './direction';
 import { Pathfinder } from './pathfinder';
 import type { Character } from './character';
 import type { GameState } from '../types';
