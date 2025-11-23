@@ -14,7 +14,12 @@
     "test:run": "vitest run",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\""
   },
-  "keywords": ["bomberman", "game", "canvas", "typescript"],
+  "keywords": [
+    "bomberman",
+    "game",
+    "canvas",
+    "typescript"
+  ],
   "author": "Lingelo",
   "license": "ISC",
   "devDependencies": {
@@ -24,10 +29,10 @@
     "eslint": "^8.54.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.29.0",
+    "jsdom": "^27.2.0",
     "prettier": "^3.1.0",
     "typescript": "^5.3.2",
     "vite": "^5.0.0",
     "vitest": "^1.0.0"
-  },
-  "dependencies": {}
+  }
 }
