@@ -29,11 +29,41 @@ npm run test         # Run tests
 ### Multiplayer Commands
 
 ```bash
-npm run server:install   # Install server dependencies
-npm run server:dev       # Start multiplayer server only
-npm run server:build     # Build server for production
-npm run server:start     # Start production server
-npm run multiplayer      # Start both frontend and server
+npm run server:install        # Install server dependencies
+npm run server:dev            # Start multiplayer server only
+npm run server:build          # Build server for production
+npm run server:start          # Start production server
+npm run server:docker:build   # Build Docker image for server
+npm run server:docker:run     # Run server in Docker
+npm run server:docker:stop    # Stop Docker container
+npm run multiplayer           # Start both frontend and server
+```
+
+### Docker Deployment
+
+Run the entire application with Docker Compose:
+
+```bash
+# Build frontend first
+npm run build
+
+# Start all services
+docker-compose up -d
+
+# Stop all services
+docker-compose down
+```
+
+The application will be available at:
+- Frontend: http://localhost:8080
+- Server: http://localhost:3000
+
+Or build and run the server only:
+
+```bash
+cd server
+npm run docker:build
+npm run docker:run
 ```
 
 ## Multiplayer Mode

@@ -7,7 +7,10 @@
     "build": "tsc",
     "start": "node dist/main.js",
     "dev": "ts-node-dev --respawn src/main.ts",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "docker:build": "docker build -t bomberman-server .",
+    "docker:run": "docker run -p 3000:3000 --env-file .env bomberman-server",
+    "docker:stop": "docker stop $(docker ps -q --filter ancestor=bomberman-server)"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",

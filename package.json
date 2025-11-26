@@ -17,6 +17,9 @@
     "server:dev": "cd server && npm run dev",
     "server:build": "cd server && npm run build",
     "server:start": "cd server && npm run start",
+    "server:docker:build": "cd server && npm run docker:build",
+    "server:docker:run": "cd server && npm run docker:run",
+    "server:docker:stop": "cd server && npm run docker:stop",
     "multiplayer": "concurrently \"npm run dev\" \"npm run server:dev\""
   },
   "keywords": [
