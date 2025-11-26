@@ -3,6 +3,7 @@ import { DIRECTION } from '../game/direction';
 import { COLOR } from '../game/color';
 import { GAMESTATUS } from '../game/game-status';
 import { dispatch, getState } from '../state/redux';
+import { getCurrentMultiplayerGame } from '../game/multiplayer-game';
 
 interface Keys {
   up: number;
@@ -66,8 +67,9 @@ export class Keyboard {
 
       const state = getState();
       const inGame = state.gameStatus === GAMESTATUS.IN_PROGRESS;
+      const multiplayerGame = getCurrentMultiplayerGame();
 
-      // In-game controls for P1 (WHITE player)
+      // In-game controls
       if (inGame) {
         const keymap = state.keymap;
 
@@ -93,18 +95,26 @@ export class Keyboard {
         else if (e.keyCode === this.keys.right) moveDir = DIRECTION.RIGHT;
 
         if (moveDir) {
-          dispatch({
-            type: Action.MOVE,
-            payload: { color: COLOR.WHITE, direction: moveDir },
-          });
+          if (multiplayerGame) {
+            multiplayerGame.sendMove(moveDir);
+          } else {
+            dispatch({
+              type: Action.MOVE,
+              payload: { color: COLOR.WHITE, direction: moveDir },
+            });
+          }
           return;
         }
 
         if (e.keyCode === this.keys.space) {
-          dispatch({
-            type: Action.DROP_BOMB,
-            payload: { color: COLOR.WHITE },
-          });
+          if (multiplayerGame) {
+            multiplayerGame.sendDropBomb();
+          } else {
+            dispatch({
+              type: Action.DROP_BOMB,
+              payload: { color: COLOR.WHITE },
+            });
+          }
           return;
         }
         if (e.keyCode === this.keys.escape) {

@@ -12,7 +12,12 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
+    "server:install": "cd server && npm install",
+    "server:dev": "cd server && npm run dev",
+    "server:build": "cd server && npm run build",
+    "server:start": "cd server && npm run start",
+    "multiplayer": "concurrently \"npm run dev\" \"npm run server:dev\""
   },
   "keywords": [
     "bomberman",
@@ -22,10 +27,14 @@
   ],
   "author": "Lingelo",
   "license": "ISC",
+  "dependencies": {
+    "socket.io-client": "^4.7.4"
+  },
   "devDependencies": {
     "@types/node": "^20.10.0",
     "@typescript-eslint/eslint-plugin": "^6.13.0",
     "@typescript-eslint/parser": "^6.13.0",
+    "concurrently": "^8.2.2",
     "eslint": "^8.54.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.29.0",

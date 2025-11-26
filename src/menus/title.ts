@@ -18,7 +18,7 @@ export class Title extends Menu {
     this.keymap = getState().keymap;
 
     subscribe(() => {
-      this.manageOverflowMenu(1, 3, getState().selectedOption);
+      this.manageOverflowMenu(1, 4, getState().selectedOption);
       this.ready = getState().gameStatus === GAMESTATUS.READY;
       this.selectedArena = getState().selectedArena;
       this.keymap = getState().keymap;
@@ -43,45 +43,61 @@ export class Title extends Menu {
       canvasContext.ctx.shadowBlur = 15;
     }
     canvasContext.ctx.fillStyle = newGameColor;
-    canvasContext.ctx.fillText('START GAME', canvasContext.screenWidth / 2, 340);
+    canvasContext.ctx.fillText('START GAME', canvasContext.screenWidth / 2, 330);
     canvasContext.ctx.shadowBlur = 0;
 
     // Selector arrow
     if (this.selectedOption === 1) {
       canvasContext.ctx.fillStyle = '#ffff00';
-      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 100, 340);
+      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 100, 330);
+    }
+
+    // Multiplayer with glow when selected
+    const multiColor = this.getColorMenu('Multiplayer');
+    if (this.selectedOption === 2) {
+      canvasContext.ctx.shadowColor = multiColor;
+      canvasContext.ctx.shadowBlur = 15;
+    }
+    canvasContext.ctx.fillStyle = multiColor;
+    canvasContext.ctx.fillText('MULTIPLAYER', canvasContext.screenWidth / 2, 365);
+    canvasContext.ctx.shadowBlur = 0;
+
+    // Selector arrow
+    if (this.selectedOption === 2) {
+      canvasContext.ctx.fillStyle = '#ffff00';
+      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 100, 365);
     }
 
     // Options with glow when selected
     const optionsColor = this.getColorMenu('Options');
-    if (this.selectedOption === 2) {
+    if (this.selectedOption === 3) {
       canvasContext.ctx.shadowColor = optionsColor;
       canvasContext.ctx.shadowBlur = 15;
     }
     canvasContext.ctx.fillStyle = optionsColor;
-    canvasContext.ctx.fillText('OPTIONS', canvasContext.screenWidth / 2, 380);
+    canvasContext.ctx.fillText('OPTIONS', canvasContext.screenWidth / 2, 400);
     canvasContext.ctx.shadowBlur = 0;
 
     // Selector arrow
-    if (this.selectedOption === 2) {
+    if (this.selectedOption === 3) {
       canvasContext.ctx.fillStyle = '#ffff00';
-      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 80, 380);
+      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 80, 400);
     }
 
     // Information with glow when selected
     const infoColor = this.getColorMenu('Information');
-    if (this.selectedOption === 3) {
+    if (this.selectedOption === 4) {
       canvasContext.ctx.shadowColor = infoColor;
       canvasContext.ctx.shadowBlur = 15;
     }
     canvasContext.ctx.fillStyle = infoColor;
-    canvasContext.ctx.fillText('INFO', canvasContext.screenWidth / 2, 420);
+    canvasContext.ctx.fillText('INFO', canvasContext.screenWidth / 2, 435);
     canvasContext.ctx.shadowBlur = 0;
 
     // Selector arrow
-    if (this.selectedOption === 3) {
+    if (this.selectedOption === 4) {
       canvasContext.ctx.fillStyle = '#ffff00';
-      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 60, 420);
+      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 60, 435);
     }
   }
 
@@ -211,10 +227,16 @@ export class Title extends Menu {
     if (menu === 'New Game' && !this.ready) {
       return '#333333'; // Dark gray - not ready
     }
-    if (menu === 'Options' && this.selectedOption === 2) {
+    if (menu === 'Multiplayer' && this.selectedOption === 2) {
+      return '#00ff00'; // Green - selected
+    }
+    if (menu === 'Multiplayer') {
+      return '#888888'; // Gray - default
+    }
+    if (menu === 'Options' && this.selectedOption === 3) {
       return '#00ffff'; // Cyan - selected
     }
-    if (menu === 'Information' && this.selectedOption === 3) {
+    if (menu === 'Information' && this.selectedOption === 4) {
       return '#ffff00'; // Yellow - selected
     }
     return '#888888'; // Gray - default

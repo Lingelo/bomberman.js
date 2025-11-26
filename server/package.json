@@ -1,0 +1,30 @@
+{
+  "name": "bomberman-server",
+  "version": "1.0.0",
+  "description": "Multiplayer server for Bomberman.js",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "dev": "ts-node-dev --respawn src/main.ts",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.3.0",
+    "@nestjs/core": "^10.3.0",
+    "@nestjs/platform-express": "^10.3.0",
+    "@nestjs/platform-socket.io": "^10.3.0",
+    "@nestjs/websockets": "^10.3.0",
+    "reflect-metadata": "^0.2.1",
+    "rxjs": "^7.8.1",
+    "socket.io": "^4.7.4",
+    "pino": "^8.17.2",
+    "pino-pretty": "^10.3.1",
+    "nestjs-pino": "^3.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.3"
+  }
+}

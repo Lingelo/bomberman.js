@@ -2,11 +2,16 @@ import { Title } from './menus/title';
 import { Keyboard } from './utils/keyboard';
 import { Options } from './menus/options';
 import { Information } from './menus/information';
+import { Lobby } from './menus/lobby';
 import { Game } from './game/game';
+import { MultiplayerGame, setCurrentMultiplayerGame } from './game/multiplayer-game';
 import { Action } from './state/actions';
 import { GAMESTATUS } from './game/game-status';
 import { GamePad } from './utils/gamepad';
 import { GameUtils } from './utils/game-utils';
+import { Character } from './game/character';
+import { DIRECTION } from './game/direction';
+import { networkClient } from './utils/network';
 import { dispatch, getState, subscribe } from './state/redux';
 import type { CanvasContext } from './types';
 import type { Menu } from './menus/menu';
@@ -29,7 +34,7 @@ const controller = new Keyboard();
 controller.bind();
 const gamepads = new GamePad();
 
-let currentScreen: Menu | Game = new Title();
+let currentScreen: Menu | Game | MultiplayerGame = new Title();
 
 subscribe(() => {
   const newScreenCode = getState().currentScreenCode;
@@ -47,11 +52,15 @@ subscribe(() => {
     case 'INFORMATION':
       currentScreen = new Information();
       break;
+    case 'LOBBY':
+      currentScreen = new Lobby();
+      break;
     case 'NEW_GAME': {
       const walls = GameUtils.initWalls(getState().map, getState().characters);
       const bonus = GameUtils.initBonus(getState().map, getState().characters);
 
       currentScreen = new Game(getState().map, walls, getState().characters, bonus);
+      setCurrentMultiplayerGame(null);
 
       dispatch({
         type: Action.INIT_GAME,
@@ -59,6 +68,41 @@ subscribe(() => {
           status: GAMESTATUS.IN_PROGRESS,
           walls,
           bonus,
+        },
+      });
+      break;
+    }
+    case 'MULTIPLAYER_GAME': {
+      const lobbyState = networkClient.lobbyState;
+      if (!lobbyState) {
+        dispatch({ type: Action.ESCAPE });
+        break;
+      }
+
+      const characters: Character[] = [];
+      lobbyState.players.forEach(player => {
+        const char = new Character(player.color as 0 | 1 | 2 | 3, player.x, player.y, DIRECTION.DOWN);
+        char.isBot = false;
+        characters.push(char);
+      });
+
+      const walls = GameUtils.initWalls(getState().map, characters);
+      const bonus = GameUtils.initBonus(getState().map, characters);
+
+      const localPlayer = lobbyState.players.find(p => p.id === networkClient.localPlayerId);
+      const localColor = localPlayer ? localPlayer.color : 0;
+
+      const mpGame = new MultiplayerGame(getState().map, walls, characters, bonus, localColor);
+      currentScreen = mpGame;
+      setCurrentMultiplayerGame(mpGame);
+
+      dispatch({
+        type: Action.INIT_GAME,
+        payload: {
+          status: GAMESTATUS.IN_PROGRESS,
+          walls,
+          bonus,
+          characters,
         },
       });
       break;

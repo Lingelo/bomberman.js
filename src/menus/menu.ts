@@ -144,9 +144,12 @@ export class Menu {
         return 'NEW_GAME';
       }
       if (selectionOption === 2) {
-        return 'OPTIONS';
+        return 'LOBBY';
       }
       if (selectionOption === 3) {
+        return 'OPTIONS';
+      }
+      if (selectionOption === 4) {
         return 'INFORMATION';
       }
       return undefined;
@@ -156,6 +159,9 @@ export class Menu {
     }
     if (currentScreen === 'INFORMATION') {
       return 'TITLE';
+    }
+    if (currentScreen === 'LOBBY') {
+      return undefined;
     }
     return undefined;
   }

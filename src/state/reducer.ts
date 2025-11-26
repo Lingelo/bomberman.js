@@ -28,6 +28,17 @@ const map = [
   [8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4],
 ];
 
+// Load options from localStorage
+const loadVolume = (): number => {
+  const saved = localStorage.getItem('bomberman-volume');
+  return saved ? parseInt(saved, 10) : 50;
+};
+
+const loadKeymap = (): KeymapType => {
+  const saved = localStorage.getItem('bomberman-keymap');
+  return (saved as KeymapType) || 'ZQSD';
+};
+
 const initialState: GameState = {
   gameStatus: GAMESTATUS.INITIALISATION,
   selectedOption: 1,
@@ -39,8 +50,8 @@ const initialState: GameState = {
   walls: [],
   blasts: [],
   selectedArena: 0,
-  volume: 50,
-  keymap: 'ZQSD' as KeymapType,
+  volume: loadVolume(),
+  keymap: loadKeymap(),
 };
 
 export function reducer(action: GameAction, state: GameState = initialState): GameState {
@@ -71,6 +82,7 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
       }
       if (state.currentScreenCode === 'OPTIONS' && state.selectedOption === 1) {
         const newVolume = Math.max(0, state.volume - 10);
+        localStorage.setItem('bomberman-volume', newVolume.toString());
         return {
           ...state,
           volume: newVolume,
@@ -80,6 +92,7 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
         const keymaps: KeymapType[] = ['ZQSD', 'WASD', 'ARROWS'];
         const currentIndex = keymaps.indexOf(state.keymap);
         const newIndex = (currentIndex - 1 + keymaps.length) % keymaps.length;
+        localStorage.setItem('bomberman-keymap', keymaps[newIndex]);
         return {
           ...state,
           keymap: keymaps[newIndex],
@@ -99,6 +112,7 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
       }
       if (state.currentScreenCode === 'OPTIONS' && state.selectedOption === 1) {
         const newVolume = Math.min(100, state.volume + 10);
+        localStorage.setItem('bomberman-volume', newVolume.toString());
         return {
           ...state,
           volume: newVolume,
@@ -108,6 +122,7 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
         const keymaps: KeymapType[] = ['ZQSD', 'WASD', 'ARROWS'];
         const currentIndex = keymaps.indexOf(state.keymap);
         const newIndex = (currentIndex + 1) % keymaps.length;
+        localStorage.setItem('bomberman-keymap', keymaps[newIndex]);
         return {
           ...state,
           keymap: keymaps[newIndex],
@@ -341,12 +356,17 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
     }
 
     case Action.INIT_GAME: {
-      const payload = action.payload as { walls: typeof state.walls; bonus: typeof state.bonus };
+      const payload = action.payload as {
+        walls: typeof state.walls;
+        bonus: typeof state.bonus;
+        characters?: typeof state.characters;
+      };
       return {
         ...state,
         gameStatus: GAMESTATUS.IN_PROGRESS,
         walls: payload.walls,
         bonus: payload.bonus,
+        characters: payload.characters || state.characters,
       };
     }
 
@@ -411,6 +431,7 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
 
     case Action.VOLUME_UP: {
       const newVolume = Math.min(100, state.volume + 10);
+      localStorage.setItem('bomberman-volume', newVolume.toString());
       Music.menuBeep().then((song) => {
         song.volume = newVolume / 100;
         song.play();
@@ -423,6 +444,7 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
 
     case Action.VOLUME_DOWN: {
       const newVolume = Math.max(0, state.volume - 10);
+      localStorage.setItem('bomberman-volume', newVolume.toString());
       Music.menuBeep().then((song) => {
         song.volume = newVolume / 100;
         song.play();
@@ -445,10 +467,20 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
         newIndex = (currentIndex - 1 + keymaps.length) % keymaps.length;
       }
 
+      localStorage.setItem('bomberman-keymap', keymaps[newIndex]);
       Music.menuBeep().then((song) => song.play());
       return {
         ...state,
         keymap: keymaps[newIndex],
+      };
+    }
+
+    case 'SET_SCREEN': {
+      const payload = action.payload as { screen: string };
+      return {
+        ...state,
+        currentScreenCode: payload.screen,
+        selectedOption: 1,
       };
     }
 
