@@ -36,7 +36,7 @@ type NetworkEventCallback = (data: unknown) => void;
 
 class NetworkClient {
   private socket: Socket | null = null;
-  private serverUrl: string = 'http://localhost:3000';
+  private serverUrl: string = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
   private eventCallbacks: Map<string, NetworkEventCallback[]> = new Map();
   private _isConnected: boolean = false;
   private _localPlayerId: string | null = null;

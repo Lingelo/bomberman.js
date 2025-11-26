@@ -15,6 +15,32 @@ npm install
 npm run dev
 ```
 
+### Environment Configuration
+
+#### Frontend (.env)
+
+Copy `.env.example` to `.env` and configure:
+
+```bash
+cp .env.example .env
+```
+
+- `VITE_SERVER_URL`: Server URL for multiplayer (default: `http://localhost:3000`)
+  - For local development: `http://localhost:3000`
+  - For network access: `http://<your-ip>:3000`
+
+#### Server (server/.env)
+
+Copy `server/.env.example` to `server/.env` and configure:
+
+```bash
+cp server/.env.example server/.env
+```
+
+- `PORT`: Server port (default: `3000`)
+- `HOST`: Bind address (default: `0.0.0.0` for network access, use `127.0.0.1` for localhost only)
+- `NODE_ENV`: Environment mode (`development` or `production`)
+
 ## Available Scripts
 
 ```bash

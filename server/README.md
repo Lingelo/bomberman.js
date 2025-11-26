@@ -24,6 +24,7 @@ cp .env.example .env
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PORT` | `3000` | Server port |
+| `HOST` | `0.0.0.0` | Bind address (use `0.0.0.0` for network access, `127.0.0.1` for localhost only) |
 | `CORS_ORIGINS` | `*` | Allowed CORS origins (comma-separated) |
 | `NODE_ENV` | `development` | Node environment |
 
