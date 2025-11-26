@@ -1,5 +1,7 @@
 import { Action } from '../state/actions';
 import { dispatch, getState, subscribe } from '../state/redux';
+import { networkClient } from '../utils/network';
+import { Music } from '../utils/music';
 import { Ground } from './ground';
 import { Board } from './board';
 import { Block } from './block';
@@ -9,12 +11,10 @@ import { DIRECTION, type Direction } from './direction';
 import { Bomb } from './bomb';
 import { Bonus } from './bonus';
 import { Wall } from './wall';
-import { networkClient } from '../utils/network';
 import { BONUSTYPE } from './bonus-type';
-import { Music } from '../utils/music';
-import type { CanvasContext, GameMap, WallGrid } from '../types';
 import { Flame } from './flame';
 import { CARDINAL, type Cardinal } from './cardinal';
+import type { CanvasContext, GameMap, WallGrid } from '../types';
 
 interface ServerGameState {
   players: Array<{
@@ -134,7 +134,6 @@ export class MultiplayerGame {
       this.gameEnded = true;
       const endData = data as { reason: string };
       this.gameEndedReason = endData.reason || 'Game ended';
-      console.log('Game ended:', this.gameEndedReason);
       // Return to lobby after a short delay to show message
       setTimeout(() => {
         // Reset canvas size to default before returning to lobby

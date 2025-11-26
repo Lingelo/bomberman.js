@@ -1,7 +1,7 @@
-import { Menu } from './menu';
 import { dispatch, getState, subscribe } from '../state/redux';
 import { Action } from '../state/actions';
 import { networkClient, type LobbyState, type NetworkPlayer, type RoomInfo } from '../utils/network';
+import { Menu } from './menu';
 import type { CanvasContext } from '../types';
 
 type LobbyView = 'ROOM_LIST' | 'IN_ROOM';
