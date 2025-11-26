@@ -5,3 +5,8 @@ yarn.lock
 test.html
 dist
 .env
+
+# Cloudflare Tunnel credentials
+cloudflared/*.json
+cloudflared/*.pem
+cloudflared/cert.pem

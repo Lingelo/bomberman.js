@@ -18,6 +18,16 @@ services:
       retries: 3
       start_period: 40s
 
+  # Cloudflare Tunnel - Provides free HTTPS without domain
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --url http://server:3000 --no-autoupdate
+    depends_on:
+      - server
+    restart: unless-stopped
+    # The HTTPS URL will be printed in the logs
+    # Run: docker-compose logs -f cloudflared
+
   frontend:
     image: nginx:alpine
     ports:

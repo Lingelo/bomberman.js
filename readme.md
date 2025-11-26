@@ -92,6 +92,23 @@ npm run docker:build
 npm run docker:run
 ```
 
+### HTTPS Support (for GitHub Pages)
+
+If you deploy to GitHub Pages (which uses HTTPS), you need an HTTPS server URL. The easiest solution is using **Cloudflare Tunnel** included in `docker-compose.yml`:
+
+```bash
+# Start server with HTTPS tunnel
+docker-compose up -d
+
+# Get your HTTPS URL from the logs
+docker-compose logs -f cloudflared
+# Look for: https://xyz.trycloudflare.com
+```
+
+Then configure the GitHub Actions variable `VITE_SERVER_URL` with your HTTPS URL.
+
+See [HTTPS_SETUP.md](./HTTPS_SETUP.md) for detailed instructions.
+
 ## Multiplayer Mode
 
 To play multiplayer:
