@@ -112,6 +112,7 @@ subscribe(() => {
 
 const step = (): void => {
   currentScreen.update(canvasContext);
+  controller.listen();
   gamepads.listen();
   requestAnimationFrame(step);
 };

@@ -22,7 +22,8 @@ interface Keys {
 
 export class Keyboard {
   private keys: Keys;
-  private handledKeys: boolean[];
+  private pressedKeys: Set<number>;
+  private handledOneShot: Set<number>;
 
   constructor() {
     this.keys = {
@@ -40,73 +41,27 @@ export class Keyboard {
       d: 68, // AZERTY: D for right
     };
 
-    this.handledKeys = [];
-    this.handledKeys[this.keys.up] = false;
-    this.handledKeys[this.keys.down] = false;
-    this.handledKeys[this.keys.left] = false;
-    this.handledKeys[this.keys.right] = false;
-    this.handledKeys[this.keys.space] = false;
-    this.handledKeys[this.keys.enter] = false;
-    this.handledKeys[this.keys.escape] = false;
-    this.handledKeys[this.keys.b] = false;
-    this.handledKeys[this.keys.z] = false;
-    this.handledKeys[this.keys.q] = false;
-    this.handledKeys[this.keys.s] = false;
-    this.handledKeys[this.keys.d] = false;
+    this.pressedKeys = new Set();
+    this.handledOneShot = new Set();
   }
 
   bind(): void {
     addEventListener('keyup', (e: KeyboardEvent) => {
-      delete this.handledKeys[e.keyCode];
+      this.pressedKeys.delete(e.keyCode);
+      this.handledOneShot.delete(e.keyCode);
     }, false);
 
     addEventListener('keydown', (e: KeyboardEvent) => {
-      if (this.handledKeys[e.keyCode]) {
-        this.handledKeys[e.keyCode] = true;
-      }
+      this.pressedKeys.add(e.keyCode);
 
       const state = getState();
       const inGame = state.gameStatus === GAMESTATUS.IN_PROGRESS;
       const multiplayerGame = getCurrentMultiplayerGame();
 
-      // In-game controls
+      // In-game one-shot actions (space, escape)
       if (inGame) {
-        const keymap = state.keymap;
-
-        // Check movement based on keymap
-        let moveDir: typeof DIRECTION.TOP | typeof DIRECTION.DOWN | typeof DIRECTION.LEFT | typeof DIRECTION.RIGHT | null = null;
-
-        if (keymap === 'ZQSD') {
-          if (e.keyCode === this.keys.z) moveDir = DIRECTION.TOP;
-          else if (e.keyCode === this.keys.s) moveDir = DIRECTION.DOWN;
-          else if (e.keyCode === this.keys.q) moveDir = DIRECTION.LEFT;
-          else if (e.keyCode === this.keys.d) moveDir = DIRECTION.RIGHT;
-        } else if (keymap === 'WASD') {
-          if (e.keyCode === 87) moveDir = DIRECTION.TOP; // W
-          else if (e.keyCode === 83) moveDir = DIRECTION.DOWN; // S
-          else if (e.keyCode === 65) moveDir = DIRECTION.LEFT; // A
-          else if (e.keyCode === 68) moveDir = DIRECTION.RIGHT; // D
-        }
-
-        // Arrow keys always work
-        if (e.keyCode === this.keys.up) moveDir = DIRECTION.TOP;
-        else if (e.keyCode === this.keys.down) moveDir = DIRECTION.DOWN;
-        else if (e.keyCode === this.keys.left) moveDir = DIRECTION.LEFT;
-        else if (e.keyCode === this.keys.right) moveDir = DIRECTION.RIGHT;
-
-        if (moveDir) {
-          if (multiplayerGame) {
-            multiplayerGame.sendMove(moveDir);
-          } else {
-            dispatch({
-              type: Action.MOVE,
-              payload: { color: COLOR.WHITE, direction: moveDir },
-            });
-          }
-          return;
-        }
-
-        if (e.keyCode === this.keys.space) {
+        if (e.keyCode === this.keys.space && !this.handledOneShot.has(e.keyCode)) {
+          this.handledOneShot.add(e.keyCode);
           if (multiplayerGame) {
             multiplayerGame.sendDropBomb();
           } else {
@@ -117,13 +72,21 @@ export class Keyboard {
           }
           return;
         }
-        if (e.keyCode === this.keys.escape) {
+        if (e.keyCode === this.keys.escape && !this.handledOneShot.has(e.keyCode)) {
+          this.handledOneShot.add(e.keyCode);
           dispatch({ type: Action.RESET });
           return;
         }
+        // Movement is now handled in listen()
+        return;
       }
 
-      // Menu controls
+      // Menu controls (one-shot)
+      if (this.handledOneShot.has(e.keyCode)) {
+        return;
+      }
+      this.handledOneShot.add(e.keyCode);
+
       switch (e.keyCode) {
         case this.keys.up:
           dispatch({ type: Action.UP });
@@ -155,5 +118,48 @@ export class Keyboard {
           break;
       }
     }, false);
+  }
+
+  listen(): void {
+    const state = getState();
+    const inGame = state.gameStatus === GAMESTATUS.IN_PROGRESS;
+    if (!inGame) {
+      return;
+    }
+
+    const multiplayerGame = getCurrentMultiplayerGame();
+    const keymap = state.keymap;
+
+    // Check movement based on keymap
+    let moveDir: typeof DIRECTION.TOP | typeof DIRECTION.DOWN | typeof DIRECTION.LEFT | typeof DIRECTION.RIGHT | null = null;
+
+    if (keymap === 'ZQSD') {
+      if (this.pressedKeys.has(this.keys.z)) moveDir = DIRECTION.TOP;
+      else if (this.pressedKeys.has(this.keys.s)) moveDir = DIRECTION.DOWN;
+      else if (this.pressedKeys.has(this.keys.q)) moveDir = DIRECTION.LEFT;
+      else if (this.pressedKeys.has(this.keys.d)) moveDir = DIRECTION.RIGHT;
+    } else if (keymap === 'WASD') {
+      if (this.pressedKeys.has(87)) moveDir = DIRECTION.TOP; // W
+      else if (this.pressedKeys.has(83)) moveDir = DIRECTION.DOWN; // S
+      else if (this.pressedKeys.has(65)) moveDir = DIRECTION.LEFT; // A
+      else if (this.pressedKeys.has(68)) moveDir = DIRECTION.RIGHT; // D
+    }
+
+    // Arrow keys always work (and override keymap if pressed)
+    if (this.pressedKeys.has(this.keys.up)) moveDir = DIRECTION.TOP;
+    else if (this.pressedKeys.has(this.keys.down)) moveDir = DIRECTION.DOWN;
+    else if (this.pressedKeys.has(this.keys.left)) moveDir = DIRECTION.LEFT;
+    else if (this.pressedKeys.has(this.keys.right)) moveDir = DIRECTION.RIGHT;
+
+    if (moveDir !== null) {
+      if (multiplayerGame) {
+        multiplayerGame.sendMove(moveDir);
+      } else {
+        dispatch({
+          type: Action.MOVE,
+          payload: { color: COLOR.WHITE, direction: moveDir },
+        });
+      }
+    }
   }
 }
