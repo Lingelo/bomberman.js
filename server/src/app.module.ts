@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import { GameModule } from './game/game.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -23,5 +24,6 @@ import { GameModule } from './game/game.module';
     }),
     GameModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
