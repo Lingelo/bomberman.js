@@ -18,7 +18,7 @@ export class Title extends Menu {
     this.keymap = getState().keymap;
 
     subscribe(() => {
-      this.manageOverflowMenu(1, 4, getState().selectedOption);
+      this.manageOverflowMenu(1, 5, getState().selectedOption);
       this.ready = getState().gameStatus === GAMESTATUS.READY;
       this.selectedArena = getState().selectedArena;
       this.keymap = getState().keymap;
@@ -98,6 +98,22 @@ export class Title extends Menu {
     if (this.selectedOption === 4) {
       canvasContext.ctx.fillStyle = '#ffff00';
       canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 60, 435);
+    }
+
+    // Credits with glow when selected
+    const creditsColor = this.getColorMenu('Credits');
+    if (this.selectedOption === 5) {
+      canvasContext.ctx.shadowColor = creditsColor;
+      canvasContext.ctx.shadowBlur = 15;
+    }
+    canvasContext.ctx.fillStyle = creditsColor;
+    canvasContext.ctx.fillText('CREDITS', canvasContext.screenWidth / 2, 470);
+    canvasContext.ctx.shadowBlur = 0;
+
+    // Selector arrow
+    if (this.selectedOption === 5) {
+      canvasContext.ctx.fillStyle = '#ffff00';
+      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 70, 470);
     }
   }
 
@@ -238,6 +254,9 @@ export class Title extends Menu {
     }
     if (menu === 'Information' && this.selectedOption === 4) {
       return '#ffff00'; // Yellow - selected
+    }
+    if (menu === 'Credits' && this.selectedOption === 5) {
+      return '#ff00ff'; // Magenta - selected
     }
     return '#888888'; // Gray - default
   }

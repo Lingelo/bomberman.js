@@ -152,12 +152,18 @@ export class Menu {
       if (selectionOption === 4) {
         return 'INFORMATION';
       }
+      if (selectionOption === 5) {
+        return 'CREDITS';
+      }
       return undefined;
     }
     if (currentScreen === 'OPTIONS') {
       return 'TITLE';
     }
     if (currentScreen === 'INFORMATION') {
+      return 'TITLE';
+    }
+    if (currentScreen === 'CREDITS') {
       return 'TITLE';
     }
     if (currentScreen === 'LOBBY') {

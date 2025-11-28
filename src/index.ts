@@ -2,6 +2,7 @@ import { Title } from './menus/title';
 import { Keyboard } from './utils/keyboard';
 import { Options } from './menus/options';
 import { Information } from './menus/information';
+import { Credits } from './menus/credits';
 import { Lobby } from './menus/lobby';
 import { Game } from './game/game';
 import { MultiplayerGame, setCurrentMultiplayerGame } from './game/multiplayer-game';
@@ -51,6 +52,9 @@ subscribe(() => {
       break;
     case 'INFORMATION':
       currentScreen = new Information();
+      break;
+    case 'CREDITS':
+      currentScreen = new Credits();
       break;
     case 'LOBBY':
       currentScreen = new Lobby();

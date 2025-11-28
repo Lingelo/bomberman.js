@@ -39,4 +39,14 @@ export class Music {
   static win(): Promise<HTMLAudioElement> {
     return import('../assets/songs/VICTORY.ogg').then(this.createAudio);
   }
+
+  static backgroundMusic(): Promise<HTMLAudioElement> {
+    return import('../assets/songs/ASTEROID_REBELLION.ogg').then((module) => {
+      const audio = new Audio(module.default);
+      audio.volume = getState().volume / 100;
+      audio.loop = true;
+      audio.load();
+      return audio;
+    });
+  }
 }
