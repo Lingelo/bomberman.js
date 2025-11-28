@@ -45,11 +45,14 @@ Navigation between screens via state changes:
 - `game.ts` - Main game loop and entity management (solo/AI mode)
 - `multiplayer-game.ts` - Multiplayer game with network synchronization
 - `board.ts` - Grid-based game board
-- `character.ts` - Player/bot entity
-- `bot-ai.ts` - AI with A* pathfinding, danger zone prediction, strategic decisions
+- `character.ts` - Player/bot entity with power-up states (hasKick, hasPunch, hasRemote, skullEffect)
+- `bot-ai.ts` - AI with A* pathfinding, danger zone prediction, strategic bomb placement, remote detonation
 - `pathfinder.ts` - A* pathfinding implementation
-- `bomb.ts`, `blast.ts`, `flame.ts` - Explosion mechanics
-- `bonus.ts`, `wall.ts`, `block.ts` - Map elements
+- `bomb.ts` - Bomb with sliding (kick), flying (punch), and remote detonation mechanics
+- `blast.ts`, `flame.ts` - Explosion mechanics
+- `bonus.ts`, `bonus-type.ts` - Power-ups (BOMB, POWER, SPEED, KICK, PUNCH, REMOTE, SKULL)
+- `skull-effect.ts` - Skull curse effects (SLOW, FAST, REVERSE, CONSTIPATION, DIARRHEA)
+- `wall.ts`, `block.ts` - Map elements
 
 ### Input Handling (`src/utils/`)
 - `keyboard.ts` - Keyboard input with multiple layout support (ZQSD/WASD/ARROWS)
@@ -62,8 +65,11 @@ NestJS WebSocket server for online multiplayer:
 - `src/main.ts` - Entry point with graceful shutdown
 - `src/app.module.ts` - Main module with Pino logging
 - `src/game/game.gateway.ts` - WebSocket gateway handling all events
-- `src/game/game.service.ts` - Lobby and game state management
-- `src/game/game.types.ts` - Shared TypeScript types
+- `src/game/game.service.ts` - Service layer for room management
+- `src/game/room-manager.ts` - Manages multiple game rooms
+- `src/game/room.ts` - Individual room with players and game state
+- `src/game/game-state.ts` - Server-side game state with physics loop
+- `src/game/game.types.ts` - Shared TypeScript types (PlayerColor, PlayerAction, etc.)
 
 ### Type Definitions
 - `src/types/index.ts` - Shared TypeScript interfaces (GameState, CanvasContext, etc.)
@@ -73,24 +79,46 @@ NestJS WebSocket server for online multiplayer:
 - Game loop uses `requestAnimationFrame` in `src/index.ts`
 - All game entities update through a unified `update(canvasContext)` pattern
 - Bot AI uses danger maps and A* pathfinding for intelligent movement
+- Bot AI avoids SKULL items, prioritizes valuable power-ups, uses remote detonation strategically
 - Canvas rendering at fixed 960x640 resolution
 - Multiplayer uses Socket.IO for real-time bidirectional communication
-- Single lobby model: one game at a time on the server
+- Room-based multiplayer: multiple concurrent games supported
+
+## Power-Up System
+
+Power-ups defined in `bonus-type.ts`, collected in `reducer.ts`:
+- **KICK**: `character.hasKick` - Walk into bomb to push it (sliding in `bomb.ts`)
+- **PUNCH**: `character.hasPunch` - Space on own bomb to throw it (flying arc in `bomb.ts`)
+- **REMOTE**: `character.hasRemote` - Bombs don't auto-explode, Shift to detonate
+- **SKULL**: Applies random curse via `skull-effect.ts` for 8 seconds (480 frames)
 
 ## Multiplayer Architecture
 
 ```
 [Client] --websocket--> [NestJS Server] --broadcast--> [All Clients]
                               |
-                         [GameService]
-                         - Single lobby
-                         - Player management
-                         - Game state
+                         [RoomManager]
+                         - Multiple rooms
+                         - Player assignment
+                              |
+                          [Room]
+                          - Game state
+                          - Physics loop
 ```
 
 ### Key Events
-- `join-lobby` / `leave-lobby` - Lobby management
-- `start-game` - Begin multiplayer match
-- `player-action` - Movement and bomb placement
-- `game-ended` / `game-over` - Match completion
-- `server-shutdown` - Graceful server shutdown notification
+- `get-room-list` / `room-list` - Room discovery
+- `join-room` / `leave-room` - Room management
+- `start-game` - Begin match (min 2 players)
+- `player-action` - MOVE, STOP, DROP_BOMB, DETONATE
+- `game-state` - Server broadcasts full state each tick
+- `game-over` / `game-ended` - Match completion
+- `server-shutdown` - Graceful shutdown notification
+
+## Docker Deployment
+
+```bash
+docker-compose build --no-cache server  # Rebuild server image
+docker-compose up -d server             # Start/restart server
+docker-compose logs -f cloudflared      # Get HTTPS tunnel URL
+```
