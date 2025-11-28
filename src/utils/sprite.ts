@@ -1,5 +1,5 @@
 import title from '../assets/images/title_bombers.png';
-import ground from '../assets/images/chemin.png';
+import ground from '../assets/images/arena_floor.png';
 import wall from '../assets/images/arena_wall.png';
 import walk from '../assets/images/arena_bomber_walk.png';
 import death from '../assets/images/arena_bomber_death.png';
