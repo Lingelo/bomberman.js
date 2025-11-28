@@ -178,14 +178,17 @@ export class MultiplayerGame {
 
       // Trigger walk animation if position changed
       const positionChanged = character.x !== serverPlayer.x || character.y !== serverPlayer.y;
-      if (positionChanged && character.animationState < 0) {
+      if (positionChanged) {
+        // If an animation is in progress, complete it immediately before starting new one
+        if (character.animationState >= 0) {
+          character.x = character.nextFrame.x;
+          character.y = character.nextFrame.y;
+        }
         character.direction = serverPlayer.direction as Direction;
         character.nextFrame = { x: serverPlayer.x, y: serverPlayer.y };
         character.animationState = 0;
-      } else if (!positionChanged || character.animationState < 0) {
-        // Update position directly if no animation or animation finished
-        character.x = serverPlayer.x;
-        character.y = serverPlayer.y;
+      } else if (character.animationState < 0) {
+        // No position change and no animation - update direction if needed
         character.direction = serverPlayer.direction as Direction;
       }
 
@@ -460,8 +463,13 @@ export class MultiplayerGame {
 
       let cardinal: Cardinal = CARDINAL.MIDDLE;
 
-      // Determine cardinal based on neighbors
-      if (hasNorth && hasSouth && !hasEast && !hasWest) {
+      // Count neighbors to detect center
+      const neighborCount = (hasNorth ? 1 : 0) + (hasSouth ? 1 : 0) + (hasEast ? 1 : 0) + (hasWest ? 1 : 0);
+
+      // Center of explosion: has neighbors in at least 3 directions, or has both vertical and horizontal
+      if (neighborCount >= 3 || (hasNorth && hasSouth && (hasEast || hasWest)) || (hasEast && hasWest && (hasNorth || hasSouth))) {
+        cardinal = CARDINAL.MIDDLE; // Center with cross pattern
+      } else if (hasNorth && hasSouth && !hasEast && !hasWest) {
         cardinal = CARDINAL.NORTH_MIDDLE; // Vertical middle
       } else if (hasEast && hasWest && !hasNorth && !hasSouth) {
         cardinal = CARDINAL.EAST_MIDDLE; // Horizontal middle

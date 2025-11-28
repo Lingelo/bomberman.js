@@ -211,7 +211,9 @@ export class GameGateway
     if (!player) return;
 
     if (action.type === 'MOVE' && action.direction !== undefined) {
-      this.roomManager.movePlayer(client.id, action.direction);
+      this.roomManager.startMove(client.id, action.direction);
+    } else if (action.type === 'STOP') {
+      this.roomManager.stopMove(client.id);
     } else if (action.type === 'DROP_BOMB') {
       this.roomManager.dropBomb(client.id);
     }

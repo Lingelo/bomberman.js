@@ -13,6 +13,9 @@ export interface ServerPlayer {
   bombUsed: number;
   radius: number;
   speed: number;
+  isMoving: boolean;
+  moveDirection: number | null;
+  moveCooldown: number;
 }
 
 export interface ServerBomb {
@@ -104,6 +107,9 @@ export class ServerGameState {
         bombUsed: 0,
         radius: 2,
         speed: 1,
+        isMoving: false,
+        moveDirection: null,
+        moveCooldown: 0,
       });
     });
 
@@ -178,6 +184,7 @@ export class ServerGameState {
   }
 
   private update(): void {
+    this.updatePlayerMovements();
     this.updateBombs();
     this.updateBlasts();
     this.checkBonusPickup();
@@ -186,6 +193,39 @@ export class ServerGameState {
     if (this.onStateUpdate) {
       this.onStateUpdate(this.getSnapshot());
     }
+  }
+
+  private updatePlayerMovements(): void {
+    this.players.forEach(player => {
+      if (!player.alive || !player.isMoving || player.moveDirection === null) {
+        return;
+      }
+
+      // Decrement cooldown
+      if (player.moveCooldown > 0) {
+        player.moveCooldown--;
+        return;
+      }
+
+      let nx = player.x;
+      let ny = player.y;
+
+      // Directions: DOWN=1, LEFT=7, RIGHT=4, TOP=10
+      switch (player.moveDirection) {
+        case 10: ny--; break; // TOP
+        case 1: ny++; break;  // DOWN
+        case 7: nx--; break;  // LEFT
+        case 4: nx++; break;  // RIGHT
+      }
+
+      if (this.canMoveTo(nx, ny)) {
+        player.x = nx;
+        player.y = ny;
+        player.direction = player.moveDirection;
+        // Set cooldown: 8 frames at 60fps = 133ms between moves (~7.5 moves/sec)
+        player.moveCooldown = 8;
+      }
+    });
   }
 
   private updateBombs(): void {
@@ -222,7 +262,7 @@ export class ServerGameState {
     ];
 
     directions.forEach(({ dx, dy }) => {
-      for (let i = 1; i <= bomb.radius; i++) {
+      for (let i = 1; i < bomb.radius; i++) {
         const nx = bomb.x + dx * i;
         const ny = bomb.y + dy * i;
 
@@ -325,27 +365,23 @@ export class ServerGameState {
     }
   }
 
-  movePlayer(playerId: string, direction: number): void {
+  startMove(playerId: string, direction: number): void {
     const player = this.players.get(playerId);
     if (!player || !player.alive) return;
 
+    this.logger.log(`Player ${player.name} START MOVE direction=${direction}`);
+    player.isMoving = true;
+    player.moveDirection = direction;
     player.direction = direction;
+  }
 
-    let nx = player.x;
-    let ny = player.y;
+  stopMove(playerId: string): void {
+    const player = this.players.get(playerId);
+    if (!player) return;
 
-    // Directions: DOWN=1, LEFT=7, RIGHT=4, TOP=10
-    switch (direction) {
-      case 10: ny--; break; // TOP
-      case 1: ny++; break;  // DOWN
-      case 7: nx--; break;  // LEFT
-      case 4: nx++; break;  // RIGHT
-    }
-
-    if (this.canMoveTo(nx, ny)) {
-      player.x = nx;
-      player.y = ny;
-    }
+    this.logger.log(`Player ${player.name} STOP MOVE`);
+    player.isMoving = false;
+    player.moveDirection = null;
   }
 
   private canMoveTo(x: number, y: number): boolean {

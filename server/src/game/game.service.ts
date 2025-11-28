@@ -158,8 +158,12 @@ export class GameService {
     return true;
   }
 
-  movePlayer(playerId: string, direction: number): void {
-    this.gameState.movePlayer(playerId, direction);
+  startMove(playerId: string, direction: number): void {
+    this.gameState.startMove(playerId, direction);
+  }
+
+  stopMove(playerId: string): void {
+    this.gameState.stopMove(playerId);
   }
 
   dropBomb(playerId: string): void {

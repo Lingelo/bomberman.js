@@ -113,10 +113,17 @@ export class RoomManager {
     }
   }
 
-  movePlayer(playerId: string, direction: number): void {
+  startMove(playerId: string, direction: number): void {
     const room = this.getPlayerRoom(playerId);
     if (room) {
-      room.movePlayer(playerId, direction);
+      room.startMove(playerId, direction);
+    }
+  }
+
+  stopMove(playerId: string): void {
+    const room = this.getPlayerRoom(playerId);
+    if (room) {
+      room.stopMove(playerId);
     }
   }
 

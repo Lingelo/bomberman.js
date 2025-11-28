@@ -179,9 +179,15 @@ export class Room {
     this.logger.log(`Game ended in room ${this.name}`);
   }
 
-  movePlayer(playerId: string, direction: number): void {
+  startMove(playerId: string, direction: number): void {
     if (this.status === 'IN_PROGRESS') {
-      this.gameState.movePlayer(playerId, direction);
+      this.gameState.startMove(playerId, direction);
+    }
+  }
+
+  stopMove(playerId: string): void {
+    if (this.status === 'IN_PROGRESS') {
+      this.gameState.stopMove(playerId);
     }
   }
 

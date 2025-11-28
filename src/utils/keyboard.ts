@@ -4,6 +4,7 @@ import { COLOR } from '../game/color';
 import { GAMESTATUS } from '../game/game-status';
 import { dispatch, getState } from '../state/redux';
 import { getCurrentMultiplayerGame } from '../game/multiplayer-game';
+import { networkClient } from './network';
 
 interface Keys {
   up: number;
@@ -49,6 +50,35 @@ export class Keyboard {
     addEventListener('keyup', (e: KeyboardEvent) => {
       this.pressedKeys.delete(e.keyCode);
       this.handledOneShot.delete(e.keyCode);
+
+      // In multiplayer, send STOP only if NO movement keys are still pressed
+      const multiplayerGame = getCurrentMultiplayerGame();
+      if (multiplayerGame) {
+        const state = getState();
+        const keymap = state.keymap;
+        const isMovementKey =
+          e.keyCode === this.keys.up || e.keyCode === this.keys.down ||
+          e.keyCode === this.keys.left || e.keyCode === this.keys.right ||
+          (keymap === 'ZQSD' && (e.keyCode === this.keys.z || e.keyCode === this.keys.s ||
+           e.keyCode === this.keys.q || e.keyCode === this.keys.d)) ||
+          (keymap === 'WASD' && (e.keyCode === 87 || e.keyCode === 83 ||
+           e.keyCode === 65 || e.keyCode === 68));
+
+        if (isMovementKey) {
+          // Check if any other movement key is still pressed
+          const stillHasMovementKey =
+            this.pressedKeys.has(this.keys.up) || this.pressedKeys.has(this.keys.down) ||
+            this.pressedKeys.has(this.keys.left) || this.pressedKeys.has(this.keys.right) ||
+            (keymap === 'ZQSD' && (this.pressedKeys.has(this.keys.z) || this.pressedKeys.has(this.keys.s) ||
+             this.pressedKeys.has(this.keys.q) || this.pressedKeys.has(this.keys.d))) ||
+            (keymap === 'WASD' && (this.pressedKeys.has(87) || this.pressedKeys.has(83) ||
+             this.pressedKeys.has(65) || this.pressedKeys.has(68)));
+
+          if (!stillHasMovementKey) {
+            networkClient.sendAction({ type: 'STOP' });
+          }
+        }
+      }
     }, false);
 
     addEventListener('keydown', (e: KeyboardEvent) => {
@@ -58,8 +88,9 @@ export class Keyboard {
       const inGame = state.gameStatus === GAMESTATUS.IN_PROGRESS;
       const multiplayerGame = getCurrentMultiplayerGame();
 
-      // In-game one-shot actions (space, escape)
+      // In-game actions
       if (inGame) {
+        // One-shot actions
         if (e.keyCode === this.keys.space && !this.handledOneShot.has(e.keyCode)) {
           this.handledOneShot.add(e.keyCode);
           if (multiplayerGame) {
@@ -77,7 +108,37 @@ export class Keyboard {
           dispatch({ type: Action.RESET });
           return;
         }
-        // Movement is now handled in listen()
+
+        // Movement in multiplayer: send once on keydown
+        if (multiplayerGame) {
+          const keymap = state.keymap;
+          let moveDir: typeof DIRECTION.TOP | typeof DIRECTION.DOWN | typeof DIRECTION.LEFT | typeof DIRECTION.RIGHT | null = null;
+
+          if (keymap === 'ZQSD') {
+            if (e.keyCode === this.keys.z) moveDir = DIRECTION.TOP;
+            else if (e.keyCode === this.keys.s) moveDir = DIRECTION.DOWN;
+            else if (e.keyCode === this.keys.q) moveDir = DIRECTION.LEFT;
+            else if (e.keyCode === this.keys.d) moveDir = DIRECTION.RIGHT;
+          } else if (keymap === 'WASD') {
+            if (e.keyCode === 87) moveDir = DIRECTION.TOP; // W
+            else if (e.keyCode === 83) moveDir = DIRECTION.DOWN; // S
+            else if (e.keyCode === 65) moveDir = DIRECTION.LEFT; // A
+            else if (e.keyCode === 68) moveDir = DIRECTION.RIGHT; // D
+          }
+
+          // Arrow keys always work
+          if (e.keyCode === this.keys.up) moveDir = DIRECTION.TOP;
+          else if (e.keyCode === this.keys.down) moveDir = DIRECTION.DOWN;
+          else if (e.keyCode === this.keys.left) moveDir = DIRECTION.LEFT;
+          else if (e.keyCode === this.keys.right) moveDir = DIRECTION.RIGHT;
+
+          if (moveDir !== null && !this.handledOneShot.has(e.keyCode)) {
+            this.handledOneShot.add(e.keyCode);
+            multiplayerGame.sendMove(moveDir);
+          }
+          return;
+        }
+        // Solo mode: movement handled in listen()
         return;
       }
 
@@ -123,11 +184,13 @@ export class Keyboard {
   listen(): void {
     const state = getState();
     const inGame = state.gameStatus === GAMESTATUS.IN_PROGRESS;
-    if (!inGame) {
+    const multiplayerGame = getCurrentMultiplayerGame();
+
+    // Only handle continuous movement in solo mode
+    if (!inGame || multiplayerGame) {
       return;
     }
 
-    const multiplayerGame = getCurrentMultiplayerGame();
     const keymap = state.keymap;
 
     // Check movement based on keymap
@@ -152,14 +215,11 @@ export class Keyboard {
     else if (this.pressedKeys.has(this.keys.right)) moveDir = DIRECTION.RIGHT;
 
     if (moveDir !== null) {
-      if (multiplayerGame) {
-        multiplayerGame.sendMove(moveDir);
-      } else {
-        dispatch({
-          type: Action.MOVE,
-          payload: { color: COLOR.WHITE, direction: moveDir },
-        });
-      }
+      // Solo mode: send every frame for smooth movement
+      dispatch({
+        type: Action.MOVE,
+        payload: { color: COLOR.WHITE, direction: moveDir },
+      });
     }
   }
 }
