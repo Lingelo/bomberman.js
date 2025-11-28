@@ -13,6 +13,7 @@ import { GameUtils } from './utils/game-utils';
 import { Character } from './game/character';
 import { DIRECTION } from './game/direction';
 import { networkClient } from './utils/network';
+import { BackgroundMusicManager } from './utils/music';
 import { dispatch, getState, subscribe } from './state/redux';
 import type { CanvasContext } from './types';
 import type { Menu } from './menus/menu';
@@ -37,6 +38,13 @@ const gamepads = new GamePad();
 
 let currentScreen: Menu | Game | MultiplayerGame = new Title();
 
+// Initialize background music manager
+const backgroundMusic = BackgroundMusicManager.getInstance();
+// Start music on first user interaction (click on canvas)
+canvas.addEventListener('click', () => {
+  backgroundMusic.start();
+}, { once: true });
+
 subscribe(() => {
   const newScreenCode = getState().currentScreenCode;
   if (currentScreen.code === newScreenCode) {
@@ -46,18 +54,23 @@ subscribe(() => {
   switch (newScreenCode) {
     case 'TITLE':
       currentScreen = new Title();
+      backgroundMusic.start();
       break;
     case 'OPTIONS':
       currentScreen = new Options();
+      backgroundMusic.start();
       break;
     case 'INFORMATION':
       currentScreen = new Information();
+      backgroundMusic.start();
       break;
     case 'CREDITS':
       currentScreen = new Credits();
+      backgroundMusic.start();
       break;
     case 'LOBBY':
       currentScreen = new Lobby();
+      backgroundMusic.start();
       break;
     case 'NEW_GAME': {
       const walls = GameUtils.initWalls(getState().map, getState().characters);
@@ -65,6 +78,7 @@ subscribe(() => {
 
       currentScreen = new Game(getState().map, walls, getState().characters, bonus);
       setCurrentMultiplayerGame(null);
+      backgroundMusic.stop();
 
       dispatch({
         type: Action.INIT_GAME,
@@ -99,6 +113,7 @@ subscribe(() => {
       const mpGame = new MultiplayerGame(getState().map, walls, characters, bonus, localColor);
       currentScreen = mpGame;
       setCurrentMultiplayerGame(mpGame);
+      backgroundMusic.stop();
 
       dispatch({
         type: Action.INIT_GAME,

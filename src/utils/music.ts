@@ -1,4 +1,57 @@
-import { getState } from '../state/redux';
+import { getState, subscribe } from '../state/redux';
+
+export class BackgroundMusicManager {
+  private static instance: BackgroundMusicManager;
+  private audio: HTMLAudioElement | null = null;
+  private isPlaying = false;
+
+  private constructor() {
+    // Subscribe to volume changes
+    subscribe(() => {
+      if (this.audio) {
+        this.audio.volume = getState().volume / 100;
+      }
+    });
+  }
+
+  static getInstance(): BackgroundMusicManager {
+    if (!BackgroundMusicManager.instance) {
+      BackgroundMusicManager.instance = new BackgroundMusicManager();
+    }
+    return BackgroundMusicManager.instance;
+  }
+
+  async start(): Promise<void> {
+    if (this.audio && this.isPlaying) {
+      return; // Already playing
+    }
+
+    if (!this.audio) {
+      const module = await import('../assets/songs/ASTEROID_REBELLION.ogg');
+      this.audio = new Audio(module.default);
+      this.audio.volume = getState().volume / 100;
+      this.audio.loop = true;
+    }
+
+    try {
+      await this.audio.play();
+      this.isPlaying = true;
+    } catch (error) {
+      console.warn('Background music autoplay blocked:', error);
+    }
+  }
+
+  stop(): void {
+    if (this.audio && this.isPlaying) {
+      this.audio.pause();
+      this.isPlaying = false;
+    }
+  }
+
+  isCurrentlyPlaying(): boolean {
+    return this.isPlaying;
+  }
+}
 
 export class Music {
   private static createAudio(module: { default: string }): HTMLAudioElement {
