@@ -31,7 +31,7 @@ const map = [
 // Load options from localStorage
 const loadVolume = (): number => {
   const saved = localStorage.getItem('bomberman-volume');
-  return saved ? parseInt(saved, 10) : 50;
+  return saved ? parseInt(saved, 10) : 30;
 };
 
 const loadKeymap = (): KeymapType => {
