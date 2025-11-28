@@ -5,20 +5,23 @@ import type { CanvasContext, KeymapType } from '../types';
 export class Options extends Menu {
   volume: number;
   keymap: KeymapType;
+  musicEnabled: boolean;
 
   constructor() {
     super();
     this.code = 'OPTIONS';
     this.volume = getState().volume;
     this.keymap = getState().keymap;
+    this.musicEnabled = getState().musicEnabled;
 
     subscribe(() => {
       // Only manage overflow if we're still on this screen
       if (getState().currentScreenCode === 'OPTIONS') {
-        this.manageOverflowMenu(1, 3, getState().selectedOption);
+        this.manageOverflowMenu(1, 4, getState().selectedOption);
       }
       this.volume = getState().volume;
       this.keymap = getState().keymap;
+      this.musicEnabled = getState().musicEnabled;
     });
   }
 
@@ -35,64 +38,100 @@ export class Options extends Menu {
       canvasContext.ctx.shadowBlur = 15;
     }
     canvasContext.ctx.fillStyle = volumeColor;
-    canvasContext.ctx.fillText('VOLUME', canvasContext.screenWidth / 2, 200);
+    canvasContext.ctx.fillText('VOLUME', canvasContext.screenWidth / 2, 180);
     canvasContext.ctx.shadowBlur = 0;
 
     // Selector arrow
     if (this.selectedOption === 1) {
       canvasContext.ctx.fillStyle = '#ffff00';
-      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 70, 200);
+      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 70, 180);
     }
 
     // Volume bar
-    this.renderVolumeBar(canvasContext, 230);
+    this.renderVolumeBar(canvasContext, 205);
+
+    // Music option with glow
+    canvasContext.ctx.font = '10px "Press Start 2P"';
+    const musicColor = this.getColorMenu('Music');
+    if (this.selectedOption === 2) {
+      canvasContext.ctx.shadowColor = musicColor;
+      canvasContext.ctx.shadowBlur = 15;
+    }
+    canvasContext.ctx.fillStyle = musicColor;
+    canvasContext.ctx.fillText('MUSIC', canvasContext.screenWidth / 2, 280);
+    canvasContext.ctx.shadowBlur = 0;
+
+    // Selector arrow
+    if (this.selectedOption === 2) {
+      canvasContext.ctx.fillStyle = '#ffff00';
+      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 60, 280);
+    }
+
+    // Music toggle
+    this.renderMusicToggle(canvasContext, 310);
 
     // Keymap option with glow
     canvasContext.ctx.font = '10px "Press Start 2P"';
     const keymapColor = this.getColorMenu('Keymap');
-    if (this.selectedOption === 2) {
+    if (this.selectedOption === 3) {
       canvasContext.ctx.shadowColor = keymapColor;
       canvasContext.ctx.shadowBlur = 15;
     }
     canvasContext.ctx.fillStyle = keymapColor;
-    canvasContext.ctx.fillText('CONTROLS', canvasContext.screenWidth / 2, 300);
+    canvasContext.ctx.fillText('CONTROLS', canvasContext.screenWidth / 2, 380);
     canvasContext.ctx.shadowBlur = 0;
 
     // Selector arrow
-    if (this.selectedOption === 2) {
+    if (this.selectedOption === 3) {
       canvasContext.ctx.fillStyle = '#ffff00';
-      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 90, 300);
+      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 90, 380);
     }
 
     // Keymap selector
-    this.renderKeymapSelector(canvasContext, 330);
+    this.renderKeymapSelector(canvasContext, 410);
 
     // Back option with glow
     canvasContext.ctx.font = '10px "Press Start 2P"';
     const backColor = this.getColorMenu('Back');
-    if (this.selectedOption === 3) {
+    if (this.selectedOption === 4) {
       canvasContext.ctx.shadowColor = backColor;
       canvasContext.ctx.shadowBlur = 15;
     }
     canvasContext.ctx.fillStyle = backColor;
-    canvasContext.ctx.fillText('BACK', canvasContext.screenWidth / 2, 400);
+    canvasContext.ctx.fillText('BACK', canvasContext.screenWidth / 2, 480);
     canvasContext.ctx.shadowBlur = 0;
 
     // Selector arrow
-    if (this.selectedOption === 3) {
+    if (this.selectedOption === 4) {
       canvasContext.ctx.fillStyle = '#ffff00';
-      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 50, 400);
+      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 50, 480);
     }
 
     // Controls help
     canvasContext.ctx.font = '6px "Press Start 2P"';
     canvasContext.ctx.fillStyle = '#00ff00';
-    canvasContext.ctx.fillText('UP/DOWN=NAV  LEFT/RIGHT=CHANGE  ENTER=OK', canvasContext.screenWidth / 2, 540);
+    canvasContext.ctx.fillText('UP/DOWN=NAV  LEFT/RIGHT=CHANGE  ENTER=OK', canvasContext.screenWidth / 2, 560);
+  }
+
+  renderMusicToggle(canvasContext: CanvasContext, y: number): void {
+    // Arrows
+    if (this.selectedOption === 2) {
+      canvasContext.ctx.fillStyle = '#ffff00';
+      canvasContext.ctx.font = '10px "Press Start 2P"';
+      canvasContext.ctx.fillText('<', canvasContext.screenWidth / 2 - 50, y);
+      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 + 50, y);
+    }
+
+    // Current state
+    const stateText = this.musicEnabled ? 'ON' : 'OFF';
+    canvasContext.ctx.fillStyle = this.selectedOption === 2 ? (this.musicEnabled ? '#00ff00' : '#ff0000') : '#888888';
+    canvasContext.ctx.font = '8px "Press Start 2P"';
+    canvasContext.ctx.fillText(stateText, canvasContext.screenWidth / 2, y);
   }
 
   renderKeymapSelector(canvasContext: CanvasContext, y: number): void {
     // Arrows
-    if (this.selectedOption === 2) {
+    if (this.selectedOption === 3) {
       canvasContext.ctx.fillStyle = '#ffff00';
       canvasContext.ctx.font = '10px "Press Start 2P"';
       canvasContext.ctx.fillText('<', canvasContext.screenWidth / 2 - 80, y);
@@ -100,7 +139,7 @@ export class Options extends Menu {
     }
 
     // Current keymap
-    canvasContext.ctx.fillStyle = this.selectedOption === 2 ? '#ff00ff' : '#888888';
+    canvasContext.ctx.fillStyle = this.selectedOption === 3 ? '#ff00ff' : '#888888';
     canvasContext.ctx.font = '8px "Press Start 2P"';
     canvasContext.ctx.fillText(this.keymap, canvasContext.screenWidth / 2, y);
   }
@@ -146,10 +185,13 @@ export class Options extends Menu {
     if (menu === 'Volume' && this.selectedOption === 1) {
       return '#00ffff'; // Cyan - selected
     }
-    if (menu === 'Keymap' && this.selectedOption === 2) {
+    if (menu === 'Music' && this.selectedOption === 2) {
       return '#00ffff'; // Cyan - selected
     }
-    if (menu === 'Back' && this.selectedOption === 3) {
+    if (menu === 'Keymap' && this.selectedOption === 3) {
+      return '#00ffff'; // Cyan - selected
+    }
+    if (menu === 'Back' && this.selectedOption === 4) {
       return '#ff00ff'; // Magenta - selected
     }
     return '#666666'; // Gray - default

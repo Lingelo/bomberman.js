@@ -158,7 +158,10 @@ export class Menu {
       return undefined;
     }
     if (currentScreen === 'OPTIONS') {
-      return 'TITLE';
+      if (selectionOption === 4) {
+        return 'TITLE';
+      }
+      return undefined;
     }
     if (currentScreen === 'INFORMATION') {
       return 'TITLE';

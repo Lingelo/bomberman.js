@@ -35,6 +35,7 @@ export interface GameState {
   selectedArena: number;
   volume: number;
   keymap: KeymapType;
+  musicEnabled: boolean;
 }
 
 export interface GameAction {

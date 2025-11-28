@@ -40,6 +40,11 @@ const loadKeymap = (): KeymapType => {
   return (saved as KeymapType) || 'ZQSD';
 };
 
+const loadMusicEnabled = (): boolean => {
+  const saved = localStorage.getItem('bomberman-music');
+  return saved === null ? true : saved === 'true';
+};
+
 const initialState: GameState = {
   gameStatus: GAMESTATUS.INITIALISATION,
   selectedOption: 1,
@@ -53,6 +58,7 @@ const initialState: GameState = {
   selectedArena: 0,
   volume: loadVolume(),
   keymap: loadKeymap(),
+  musicEnabled: loadMusicEnabled(),
 };
 
 export function reducer(action: GameAction, state: GameState = initialState): GameState {
@@ -90,6 +96,14 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
         };
       }
       if (state.currentScreenCode === 'OPTIONS' && state.selectedOption === 2) {
+        const newMusicEnabled = !state.musicEnabled;
+        localStorage.setItem('bomberman-music', newMusicEnabled.toString());
+        return {
+          ...state,
+          musicEnabled: newMusicEnabled,
+        };
+      }
+      if (state.currentScreenCode === 'OPTIONS' && state.selectedOption === 3) {
         const keymaps: KeymapType[] = ['ZQSD', 'WASD', 'ARROWS'];
         const currentIndex = keymaps.indexOf(state.keymap);
         const newIndex = (currentIndex - 1 + keymaps.length) % keymaps.length;
@@ -120,6 +134,14 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
         };
       }
       if (state.currentScreenCode === 'OPTIONS' && state.selectedOption === 2) {
+        const newMusicEnabled = !state.musicEnabled;
+        localStorage.setItem('bomberman-music', newMusicEnabled.toString());
+        return {
+          ...state,
+          musicEnabled: newMusicEnabled,
+        };
+      }
+      if (state.currentScreenCode === 'OPTIONS' && state.selectedOption === 3) {
         const keymaps: KeymapType[] = ['ZQSD', 'WASD', 'ARROWS'];
         const currentIndex = keymaps.indexOf(state.keymap);
         const newIndex = (currentIndex + 1) % keymaps.length;

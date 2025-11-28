@@ -6,10 +6,21 @@ export class BackgroundMusicManager {
   private isPlaying = false;
 
   private constructor() {
-    // Subscribe to volume changes
+    // Subscribe to volume and musicEnabled changes
     subscribe(() => {
       if (this.audio) {
         this.audio.volume = getState().volume / 100;
+      }
+      // Stop music if disabled
+      if (!getState().musicEnabled && this.isPlaying) {
+        this.stop();
+      }
+      // Start music if enabled and we're on a menu screen
+      if (getState().musicEnabled && !this.isPlaying) {
+        const menuScreens = ['TITLE', 'OPTIONS', 'INFORMATION', 'CREDITS', 'LOBBY'];
+        if (menuScreens.includes(getState().currentScreenCode)) {
+          this.start();
+        }
       }
     });
   }
@@ -22,6 +33,11 @@ export class BackgroundMusicManager {
   }
 
   async start(): Promise<void> {
+    // Don't start if music is disabled
+    if (!getState().musicEnabled) {
+      return;
+    }
+
     if (this.audio && this.isPlaying) {
       return; // Already playing
     }
