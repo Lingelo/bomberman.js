@@ -27,7 +27,7 @@ export class BackgroundMusicManager {
     }
 
     if (!this.audio) {
-      const module = await import('../assets/songs/ASTEROID_REBELLION.ogg');
+      const module = await import('../assets/songs/POWERUP.ogg');
       this.audio = new Audio(module.default);
       this.audio.volume = getState().volume / 100;
       this.audio.loop = true;

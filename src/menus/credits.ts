@@ -58,25 +58,25 @@ export class Credits extends Menu {
     canvasContext.ctx.font = '6px "Press Start 2P"';
     canvasContext.ctx.fillStyle = '#ffff00';
     canvasContext.ctx.fillText(
-      'ASTEROID REBELLION 5',
+      'POWERUP!',
       canvasContext.screenWidth / 2,
       290
     );
     canvasContext.ctx.fillStyle = '#ffffff';
     canvasContext.ctx.fillText(
-      'BY LOST GAMES OF THE 1990S',
+      'BY JEREMY BLAKE',
       canvasContext.screenWidth / 2,
       305
     );
     canvasContext.ctx.fillStyle = '#888888';
     canvasContext.ctx.fillText(
-      'FROM ARTLIST.IO',
+      'NO COPYRIGHT 8-BIT MUSIC',
       canvasContext.screenWidth / 2,
       320
     );
     canvasContext.ctx.font = '5px "Press Start 2P"';
     canvasContext.ctx.fillText(
-      'ALL RIGHTS RESERVED',
+      'YOUTUBE.COM/@JEREMYBLAKE',
       canvasContext.screenWidth / 2,
       335
     );

@@ -40,8 +40,13 @@ let currentScreen: Menu | Game | MultiplayerGame = new Title();
 
 // Initialize background music manager
 const backgroundMusic = BackgroundMusicManager.getInstance();
-// Start music on first user interaction (click on canvas)
+// Try to start music immediately (may be blocked by browser autoplay policy)
+backgroundMusic.start();
+// Also start music on first user interaction (click/keypress) as fallback
 canvas.addEventListener('click', () => {
+  backgroundMusic.start();
+}, { once: true });
+document.addEventListener('keydown', () => {
   backgroundMusic.start();
 }, { once: true });
 
