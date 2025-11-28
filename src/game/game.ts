@@ -59,7 +59,19 @@ export class Game {
 
   update(canvasContext: CanvasContext): void {
     this.updateBots();
+    this.updateDiarrhea();
     this.render(canvasContext);
+  }
+
+  updateDiarrhea(): void {
+    this.characters.forEach((character) => {
+      if (character.status === CharacterStatus.ALIVE && character.shouldAutoDropBomb()) {
+        dispatch({
+          type: Action.DROP_BOMB,
+          payload: { color: character.color },
+        });
+      }
+    });
   }
 
   updateBots(): void {

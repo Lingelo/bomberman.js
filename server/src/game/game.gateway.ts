@@ -216,6 +216,8 @@ export class GameGateway
       this.roomManager.stopMove(client.id);
     } else if (action.type === 'DROP_BOMB') {
       this.roomManager.dropBomb(client.id);
+    } else if (action.type === 'DETONATE') {
+      this.roomManager.detonate(client.id);
     }
   }
 

@@ -2,6 +2,7 @@ import { Action } from '../state/actions';
 import { dispatch, getState } from '../state/redux';
 import { DIRECTION, type Direction } from './direction';
 import { Pathfinder } from './pathfinder';
+import { BONUSTYPE } from './bonus-type';
 import type { Character } from './character';
 import type { GameState } from '../types';
 
@@ -51,6 +52,11 @@ export class BotAI {
   makeDecision(state: GameState): { action: string; direction?: Direction } {
     const { x, y } = this.character;
     const currentDanger = this.dangerMap[x]?.[y] || 0;
+
+    // Priority 0: Detonate remote bombs if enemy in range and we're safe
+    if (this.character.hasRemote && this.shouldDetonateRemote(state)) {
+      return { action: 'detonate' };
+    }
 
     // Priority 1: FLEE if in danger - use A* to find safe spot
     if (currentDanger > 30) {
@@ -184,20 +190,55 @@ export class BotAI {
 
   findPathToNearestBonus(state: GameState): Direction[] {
     const { x, y } = this.character;
-    let nearestBonus: { x: number; y: number } | null = null;
-    let nearestDist = Infinity;
+    let bestBonus: { x: number; y: number } | null = null;
+    let bestScore = -Infinity;
 
     for (const bonus of state.bonus) {
+      // NEVER pick up skull - it's always bad!
+      if (bonus.type === BONUSTYPE.SKULL) continue;
+
       const dist = Math.abs(bonus.x - x) + Math.abs(bonus.y - y);
-      if (dist < nearestDist) {
-        nearestDist = dist;
-        nearestBonus = bonus;
+
+      // Prioritize bonuses based on value
+      let priority = 0;
+      switch (bonus.type) {
+        case BONUSTYPE.REMOTE:
+          priority = 50; // Very valuable - can detonate strategically
+          break;
+        case BONUSTYPE.PUNCH:
+          priority = 40; // Can throw bombs over obstacles
+          break;
+        case BONUSTYPE.KICK:
+          priority = 35; // Can push bombs toward enemies
+          break;
+        case BONUSTYPE.POWER:
+          priority = 30; // More explosion range
+          break;
+        case BONUSTYPE.BOMB:
+          priority = 25; // More bombs
+          break;
+        case BONUSTYPE.SPEED:
+          priority = 20; // Faster movement
+          break;
+        default:
+          priority = 10;
+      }
+
+      // Don't prioritize items we already have
+      if (bonus.type === BONUSTYPE.KICK && this.character.hasKick) priority = 5;
+      if (bonus.type === BONUSTYPE.PUNCH && this.character.hasPunch) priority = 5;
+      if (bonus.type === BONUSTYPE.REMOTE && this.character.hasRemote) priority = 5;
+
+      const score = priority - dist;
+      if (score > bestScore) {
+        bestScore = score;
+        bestBonus = bonus;
       }
     }
 
-    if (!nearestBonus) return [];
+    if (!bestBonus) return [];
 
-    return Pathfinder.findPath(state, x, y, nearestBonus.x, nearestBonus.y, true, this.dangerMap);
+    return Pathfinder.findPath(state, x, y, bestBonus.x, bestBonus.y, true, this.dangerMap);
   }
 
   findPathToNearestWall(state: GameState): Direction[] {
@@ -372,7 +413,53 @@ export class BotAI {
           payload: { color: this.character.color },
         });
         break;
+
+      case 'detonate':
+        dispatch({
+          type: Action.DETONATE,
+          payload: { color: this.character.color },
+        });
+        break;
     }
+  }
+
+  shouldDetonateRemote(state: GameState): boolean {
+    const { x, y } = this.character;
+
+    // Find our remote bombs
+    const ourRemoteBombs = state.bombs.filter(
+      b => b.character.color === this.character.color && b.isRemote
+    );
+
+    if (ourRemoteBombs.length === 0) return false;
+
+    // Check if we're safe (not in any bomb's blast range)
+    const currentDanger = this.dangerMap[x]?.[y] || 0;
+    if (currentDanger > 30) return false;
+
+    // Check if any enemy is in blast range of our remote bombs
+    for (const bomb of ourRemoteBombs) {
+      for (const enemy of state.characters) {
+        if (enemy.color === this.character.color || enemy.status !== 'ALIVE') continue;
+
+        // Check if enemy is in the bomb's blast range
+        const radius = this.character.radius;
+        const inHorizontalBlast = enemy.y === bomb.y && Math.abs(enemy.x - bomb.x) <= radius;
+        const inVerticalBlast = enemy.x === bomb.x && Math.abs(enemy.y - bomb.y) <= radius;
+
+        if (inHorizontalBlast || inVerticalBlast) {
+          // Make sure we're not in our own blast
+          const weInHorizontal = y === bomb.y && Math.abs(x - bomb.x) <= radius;
+          const weInVertical = x === bomb.x && Math.abs(y - bomb.y) <= radius;
+
+          if (!weInHorizontal && !weInVertical) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 
   isBlastBlocked(state: GameState, bombX: number, bombY: number, targetX: number, targetY: number): boolean {

@@ -134,6 +134,13 @@ export class RoomManager {
     }
   }
 
+  detonate(playerId: string): void {
+    const room = this.getPlayerRoom(playerId);
+    if (room) {
+      room.detonate(playerId);
+    }
+  }
+
   getRoomPlayers(roomId: string): RoomPlayer[] {
     const room = this.rooms.get(roomId);
     return room ? room.getPlayers() : [];

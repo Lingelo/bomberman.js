@@ -197,6 +197,12 @@ export class Room {
     }
   }
 
+  detonate(playerId: string): void {
+    if (this.status === 'IN_PROGRESS') {
+      this.gameState.detonate(playerId);
+    }
+  }
+
   getGameSnapshot(): GameStateSnapshot {
     return this.gameState.getSnapshot();
   }

@@ -59,20 +59,34 @@ export class GameUtils {
     for (let x = 0, l = map[0].length; x < l; x++) {
       for (let y = 0, z = map.length; y < z; y++) {
         if (map[y][x] === 2) {
-          const randomInt = this.getRandomInt(20);
+          const randomInt = this.getRandomInt(40);
           if (excludedCoords.includes(x.toString() + y.toString())) {
             continue;
           }
 
           switch (randomInt) {
             case 1:
+            case 2:
               bonus.push(new Bonus(x, y, BONUSTYPE.BOMB));
               break;
-            case 10:
+            case 5:
+            case 6:
               bonus.push(new Bonus(x, y, BONUSTYPE.POWER));
               break;
-            case 15:
+            case 10:
               bonus.push(new Bonus(x, y, BONUSTYPE.SPEED));
+              break;
+            case 15:
+              bonus.push(new Bonus(x, y, BONUSTYPE.KICK));
+              break;
+            case 20:
+              bonus.push(new Bonus(x, y, BONUSTYPE.PUNCH));
+              break;
+            case 25:
+              bonus.push(new Bonus(x, y, BONUSTYPE.REMOTE));
+              break;
+            case 30:
+              bonus.push(new Bonus(x, y, BONUSTYPE.SKULL));
               break;
           }
         }

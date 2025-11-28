@@ -1,6 +1,18 @@
 import { Logger } from '@nestjs/common';
 import { PlayerColor, SPAWN_POSITIONS } from './game.types';
 
+// Bonus types matching client-side BONUSTYPE
+const BONUS_TYPE = {
+  BOMB: 0,
+  POWER: 1,
+  KICK: 2,
+  SKULL: 3,
+  SPEED: 4,
+  PUNCH: 5,
+  POWER_PUNCH: 6,
+  REMOTE: 7,
+};
+
 export interface ServerPlayer {
   id: string;
   name: string;
@@ -16,6 +28,10 @@ export interface ServerPlayer {
   isMoving: boolean;
   moveDirection: number | null;
   moveCooldown: number;
+  // Power-ups
+  hasKick: boolean;
+  hasPunch: boolean;
+  hasRemote: boolean;
 }
 
 export interface ServerBomb {
@@ -27,6 +43,9 @@ export interface ServerBomb {
   radius: number;
   timer: number;
   exploded: boolean;
+  isRemote: boolean;
+  isSliding: boolean;
+  slideDirection: number | null;
 }
 
 export interface ServerBonus {
@@ -110,6 +129,9 @@ export class ServerGameState {
         isMoving: false,
         moveDirection: null,
         moveCooldown: 0,
+        hasKick: false,
+        hasPunch: false,
+        hasRemote: false,
       });
     });
 
@@ -151,16 +173,32 @@ export class ServerGameState {
 
   private initBonus(): void {
     const wallCount = this.walls.length;
-    const bonusCount = Math.floor(wallCount * 0.3);
+    const bonusCount = Math.floor(wallCount * 0.4);
 
     const shuffledWalls = [...this.walls].sort(() => Math.random() - 0.5);
+
+    // Weighted bonus types: common items have higher chance
+    const bonusTypes = [
+      BONUS_TYPE.BOMB,    // weight: 3
+      BONUS_TYPE.BOMB,
+      BONUS_TYPE.BOMB,
+      BONUS_TYPE.POWER,   // weight: 3
+      BONUS_TYPE.POWER,
+      BONUS_TYPE.POWER,
+      BONUS_TYPE.SPEED,   // weight: 2
+      BONUS_TYPE.SPEED,
+      BONUS_TYPE.KICK,    // weight: 1
+      BONUS_TYPE.PUNCH,   // weight: 1
+      BONUS_TYPE.REMOTE,  // weight: 1
+      BONUS_TYPE.SKULL,   // weight: 1
+    ];
 
     for (let i = 0; i < bonusCount && i < shuffledWalls.length; i++) {
       const wall = shuffledWalls[i];
       this.bonus.push({
         x: wall.x,
         y: wall.y,
-        type: Math.floor(Math.random() * 3),
+        type: bonusTypes[Math.floor(Math.random() * bonusTypes.length)],
       });
     }
   }
@@ -336,14 +374,27 @@ export class ServerGameState {
         const bonus = this.bonus[bonusIndex];
 
         switch (bonus.type) {
-          case 0:
-            player.radius++;
-            break;
-          case 1:
+          case BONUS_TYPE.BOMB:
             player.bombMax++;
             break;
-          case 2:
+          case BONUS_TYPE.POWER:
+            player.radius++;
+            break;
+          case BONUS_TYPE.KICK:
+            player.hasKick = true;
+            break;
+          case BONUS_TYPE.SKULL:
+            // Skull effects are handled client-side for now
+            this.logger.debug('Skull picked up', { player: player.name });
+            break;
+          case BONUS_TYPE.SPEED:
             player.speed = Math.min(player.speed + 0.1, 2);
+            break;
+          case BONUS_TYPE.PUNCH:
+            player.hasPunch = true;
+            break;
+          case BONUS_TYPE.REMOTE:
+            player.hasRemote = true;
             break;
         }
 
@@ -404,7 +455,7 @@ export class ServerGameState {
     if (player.bombUsed >= player.bombMax) return;
 
     const existingBomb = Array.from(this.bombs.values()).find(
-      b => b.x === player.x && b.y === player.y
+      b => b.x === player.x && b.y === player.y && !b.isSliding
     );
     if (existingBomb) return;
 
@@ -416,11 +467,30 @@ export class ServerGameState {
       playerId: player.id,
       playerColor: player.color,
       radius: player.radius,
-      timer: 180,
+      timer: player.hasRemote ? 999999 : 180, // Remote bombs don't auto-explode
       exploded: false,
+      isRemote: player.hasRemote,
+      isSliding: false,
+      slideDirection: null,
     });
 
     player.bombUsed++;
+  }
+
+  detonate(playerId: string): void {
+    const player = this.players.get(playerId);
+    if (!player || !player.alive || !player.hasRemote) return;
+
+    // Find all remote bombs belonging to this player and detonate them
+    const playerBombs = Array.from(this.bombs.values()).filter(
+      b => b.playerId === playerId && b.isRemote && !b.exploded
+    );
+
+    playerBombs.forEach(bomb => {
+      bomb.timer = 1; // Will explode on next update
+    });
+
+    this.logger.debug('Remote detonate', { player: player.name, bombs: playerBombs.length });
   }
 
   getSnapshot(): GameStateSnapshot {

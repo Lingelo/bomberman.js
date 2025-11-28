@@ -24,19 +24,19 @@ export class Credits extends Menu {
     canvasContext.ctx.textAlign = 'center';
 
     // Title
-    canvasContext.ctx.font = '12px "Press Start 2P"';
+    canvasContext.ctx.font = '14px "Press Start 2P"';
     canvasContext.ctx.fillStyle = '#00ffff';
     canvasContext.ctx.shadowColor = '#00ffff';
     canvasContext.ctx.shadowBlur = 10;
-    canvasContext.ctx.fillText('CREDITS', canvasContext.screenWidth / 2, 160);
+    canvasContext.ctx.fillText('CREDITS', canvasContext.screenWidth / 2, 150);
     canvasContext.ctx.shadowBlur = 0;
 
     // Game credits
-    canvasContext.ctx.font = '8px "Press Start 2P"';
+    canvasContext.ctx.font = '10px "Press Start 2P"';
     canvasContext.ctx.fillStyle = '#ff00ff';
-    canvasContext.ctx.fillText('GAME', canvasContext.screenWidth / 2, 200);
+    canvasContext.ctx.fillText('GAME', canvasContext.screenWidth / 2, 195);
 
-    canvasContext.ctx.font = '6px "Press Start 2P"';
+    canvasContext.ctx.font = '8px "Press Start 2P"';
     canvasContext.ctx.fillStyle = '#ffffff';
     canvasContext.ctx.fillText(
       'BOMBERMAN.JS',
@@ -47,74 +47,74 @@ export class Credits extends Menu {
     canvasContext.ctx.fillText(
       'TYPESCRIPT + VITE',
       canvasContext.screenWidth / 2,
-      235
+      240
     );
 
     // Music credits
-    canvasContext.ctx.font = '8px "Press Start 2P"';
+    canvasContext.ctx.font = '10px "Press Start 2P"';
     canvasContext.ctx.fillStyle = '#ff00ff';
-    canvasContext.ctx.fillText('MUSIC', canvasContext.screenWidth / 2, 270);
+    canvasContext.ctx.fillText('MUSIC', canvasContext.screenWidth / 2, 280);
 
-    canvasContext.ctx.font = '6px "Press Start 2P"';
+    canvasContext.ctx.font = '8px "Press Start 2P"';
     canvasContext.ctx.fillStyle = '#ffff00';
     canvasContext.ctx.fillText(
       'POWERUP!',
       canvasContext.screenWidth / 2,
-      290
+      305
     );
     canvasContext.ctx.fillStyle = '#ffffff';
     canvasContext.ctx.fillText(
       'BY JEREMY BLAKE',
       canvasContext.screenWidth / 2,
-      305
+      325
     );
     canvasContext.ctx.fillStyle = '#888888';
     canvasContext.ctx.fillText(
       'NO COPYRIGHT 8-BIT MUSIC',
       canvasContext.screenWidth / 2,
-      320
+      345
     );
-    canvasContext.ctx.font = '5px "Press Start 2P"';
+    canvasContext.ctx.font = '7px "Press Start 2P"';
     canvasContext.ctx.fillText(
       'YOUTUBE.COM/@JEREMYBLAKE',
       canvasContext.screenWidth / 2,
-      335
+      365
     );
 
     // AI credits
-    canvasContext.ctx.font = '8px "Press Start 2P"';
+    canvasContext.ctx.font = '10px "Press Start 2P"';
     canvasContext.ctx.fillStyle = '#ff00ff';
-    canvasContext.ctx.fillText('AI SYSTEM', canvasContext.screenWidth / 2, 370);
+    canvasContext.ctx.fillText('AI SYSTEM', canvasContext.screenWidth / 2, 405);
 
-    canvasContext.ctx.font = '6px "Press Start 2P"';
+    canvasContext.ctx.font = '8px "Press Start 2P"';
     canvasContext.ctx.fillStyle = '#ffffff';
     canvasContext.ctx.fillText(
       'A* PATHFINDING',
       canvasContext.screenWidth / 2,
-      390
+      430
     );
     canvasContext.ctx.fillText(
       'DANGER ZONE PREDICTION',
       canvasContext.screenWidth / 2,
-      405
+      450
     );
     canvasContext.ctx.fillText(
       'STRATEGIC BOT AI',
       canvasContext.screenWidth / 2,
-      420
+      470
     );
 
     // Technology
-    canvasContext.ctx.font = '8px "Press Start 2P"';
+    canvasContext.ctx.font = '10px "Press Start 2P"';
     canvasContext.ctx.fillStyle = '#ff00ff';
-    canvasContext.ctx.fillText('TECH', canvasContext.screenWidth / 2, 455);
+    canvasContext.ctx.fillText('TECH', canvasContext.screenWidth / 2, 510);
 
-    canvasContext.ctx.font = '6px "Press Start 2P"';
+    canvasContext.ctx.font = '8px "Press Start 2P"';
     canvasContext.ctx.fillStyle = '#888888';
     canvasContext.ctx.fillText(
       'TYPESCRIPT VITE CANVAS NESTJS',
       canvasContext.screenWidth / 2,
-      475
+      535
     );
 
     // Back option
@@ -125,13 +125,13 @@ export class Credits extends Menu {
       canvasContext.ctx.shadowBlur = 15;
     }
     canvasContext.ctx.fillStyle = backColor;
-    canvasContext.ctx.fillText('BACK', canvasContext.screenWidth / 2, 550);
+    canvasContext.ctx.fillText('BACK', canvasContext.screenWidth / 2, 590);
     canvasContext.ctx.shadowBlur = 0;
 
     // Selector arrow
     if (this.selectedOption === 1) {
       canvasContext.ctx.fillStyle = '#ffff00';
-      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 50, 550);
+      canvasContext.ctx.fillText('>', canvasContext.screenWidth / 2 - 50, 590);
     }
   }
 }

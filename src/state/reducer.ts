@@ -8,6 +8,7 @@ import { Blast } from '../game/blast';
 import { Bomb } from '../game/bomb';
 import { CharacterStatus } from '../game/character-status';
 import { BONUSTYPE } from '../game/bonus-type';
+import { getRandomSkullEffect, SKULL_DURATION } from '../game/skull-effect';
 import { ARENAS } from '../game/arenas';
 import { Action } from './actions';
 import type { GameState, GameAction, KeymapType } from '../types';
@@ -295,11 +296,23 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
       if (state.gameStatus === GAMESTATUS.IN_PROGRESS) {
         const payload = action.payload as { color: number };
         const character = state.characters.find((c) => c.color === payload.color);
-        if (character && character.bombUsed < character.bombMax) {
-          character.bombUsed++;
-          const bomb = new Bomb(character);
-          state.bombs.push(bomb);
-          Music.bombDrop().then((song) => song.play());
+        if (character && character.canDropBomb()) {
+          // Check if there's a bomb at this position that belongs to this character
+          const bombAtPosition = state.bombs.find(
+            (b) => b.x === character.x && b.y === character.y && !b.isFlying && !b.isSliding
+          );
+
+          // If player has PUNCH and is standing on their own bomb, throw it
+          if (character.hasPunch && bombAtPosition && bombAtPosition.character.color === character.color) {
+            bombAtPosition.throw(character.direction, 3);
+            Music.bombDrop().then((song) => song.play());
+          } else if (!bombAtPosition && character.bombUsed < character.bombMax) {
+            // Otherwise, drop a new bomb if no bomb here and we have bombs available
+            character.bombUsed++;
+            const bomb = new Bomb(character);
+            state.bombs.push(bomb);
+            Music.bombDrop().then((song) => song.play());
+          }
         }
       }
       return {
@@ -315,6 +328,24 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
       }
       state.bombs.splice(state.bombs.indexOf(payload.bomb), 1);
       Music.explosion().then((song) => song.play());
+      return {
+        ...state,
+      };
+    }
+
+    case Action.DETONATE: {
+      if (state.gameStatus === GAMESTATUS.IN_PROGRESS) {
+        const payload = action.payload as { color: number };
+        const character = state.characters.find((c) => c.color === payload.color);
+        if (character && character.hasRemote) {
+          // Detonate all remote bombs belonging to this character
+          state.bombs.forEach((bomb) => {
+            if (bomb.character.color === character.color && bomb.isRemote) {
+              bomb.detonate();
+            }
+          });
+        }
+      }
       return {
         ...state,
       };
@@ -382,10 +413,22 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
           case BONUSTYPE.BOMB:
             character.bombMax++;
             break;
+          case BONUSTYPE.KICK:
+            character.hasKick = true;
+            break;
+          case BONUSTYPE.PUNCH:
+            character.hasPunch = true;
+            break;
+          case BONUSTYPE.REMOTE:
+            character.hasRemote = true;
+            break;
           case BONUSTYPE.SPEED:
             if (character.animationDuration > 8) {
               character.animationDuration = character.animationDuration - 1;
             }
+            break;
+          case BONUSTYPE.SKULL:
+            character.applySkullEffect(getRandomSkullEffect(), SKULL_DURATION);
             break;
         }
       }

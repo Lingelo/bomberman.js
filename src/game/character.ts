@@ -3,6 +3,7 @@ import { Action } from '../state/actions';
 import { dispatch, getState, subscribe } from '../state/redux';
 import { CharacterStatus, type CharacterStatusType } from './character-status';
 import { DIRECTION, type Direction } from './direction';
+import { SKULL_EFFECT, type SkullEffectType } from './skull-effect';
 import type { CanvasContext, Coordinate, GameState } from '../types';
 import type { Color } from './color';
 import type { Bonus } from './bonus';
@@ -25,6 +26,12 @@ export class Character {
   nextFrame: Coordinate;
   bonus: Bonus[];
   isBot: boolean;
+  hasKick: boolean;
+  hasPunch: boolean;
+  hasRemote: boolean;
+  skullEffect: SkullEffectType;
+  skullTimer: number;
+  diarrheaCooldown: number;
 
   constructor(color: Color, x: number, y: number, direction: Direction, gamePadIndex?: number) {
     this.x = x;
@@ -44,10 +51,56 @@ export class Character {
     this.nextFrame = this.getNextFrame(direction);
     this.bonus = [];
     this.isBot = false;
+    this.hasKick = false;
+    this.hasPunch = false;
+    this.hasRemote = false;
+    this.skullEffect = SKULL_EFFECT.NONE;
+    this.skullTimer = 0;
+    this.diarrheaCooldown = 0;
 
     subscribe(() => {
       this.bonus = getState().bonus;
     });
+  }
+
+  applySkullEffect(effect: SkullEffectType, duration: number): void {
+    this.skullEffect = effect;
+    this.skullTimer = duration;
+  }
+
+  updateSkullEffect(): void {
+    if (this.skullTimer > 0) {
+      this.skullTimer--;
+      if (this.skullTimer <= 0) {
+        this.skullEffect = SKULL_EFFECT.NONE;
+      }
+    }
+    if (this.diarrheaCooldown > 0) {
+      this.diarrheaCooldown--;
+    }
+  }
+
+  getEffectiveAnimationDuration(): number {
+    switch (this.skullEffect) {
+      case SKULL_EFFECT.SLOW:
+        return this.animationDuration * 2; // 50% slower
+      case SKULL_EFFECT.FAST:
+        return Math.max(4, Math.floor(this.animationDuration / 2)); // 2x faster
+      default:
+        return this.animationDuration;
+    }
+  }
+
+  canDropBomb(): boolean {
+    return this.skullEffect !== SKULL_EFFECT.CONSTIPATION;
+  }
+
+  shouldAutoDropBomb(): boolean {
+    if (this.skullEffect === SKULL_EFFECT.DIARRHEA && this.diarrheaCooldown <= 0) {
+      this.diarrheaCooldown = 30; // Drop bomb every 0.5 seconds
+      return true;
+    }
+    return false;
   }
 
   render(canvasContext: CanvasContext): void {
@@ -65,8 +118,11 @@ export class Character {
   }
 
   renderAlive(canvasContext: CanvasContext): void {
+    this.updateSkullEffect();
+    const effectiveDuration = this.getEffectiveAnimationDuration();
+
     let frame = 1;
-    if (this.animationState >= this.animationDuration) {
+    if (this.animationState >= effectiveDuration) {
       this.animationState = -1;
     } else if (this.animationState >= 0) {
       frame = Math.floor(this.animationState / 8);
@@ -74,7 +130,7 @@ export class Character {
         frame %= 4;
       }
 
-      this.pixelsToTreat = 32 - 32 * (this.animationState / this.animationDuration);
+      this.pixelsToTreat = 32 - 32 * (this.animationState / effectiveDuration);
 
       if (this.pixelsToTreat < 32 / 2) {
         this.x = this.nextFrame.x;
@@ -150,6 +206,21 @@ export class Character {
     return coord;
   }
 
+  getReversedDirection(direction: Direction): Direction {
+    switch (direction) {
+      case DIRECTION.TOP:
+        return DIRECTION.DOWN;
+      case DIRECTION.DOWN:
+        return DIRECTION.TOP;
+      case DIRECTION.LEFT:
+        return DIRECTION.RIGHT;
+      case DIRECTION.RIGHT:
+        return DIRECTION.LEFT;
+      default:
+        return direction;
+    }
+  }
+
   move(direction: Direction, state: GameState): void {
     if (this.animationState >= 0) return;
 
@@ -157,8 +228,13 @@ export class Character {
       return;
     }
 
-    this.direction = direction;
-    this.nextFrame = this.getNextFrame(direction);
+    // Apply REVERSE effect
+    const effectiveDirection = this.skullEffect === SKULL_EFFECT.REVERSE
+      ? this.getReversedDirection(direction)
+      : direction;
+
+    this.direction = effectiveDirection;
+    this.nextFrame = this.getNextFrame(effectiveDirection);
 
     if (
       this.nextFrame.x < 0 ||
@@ -193,8 +269,13 @@ export class Character {
     });
 
     for (let i = 0; i < state.bombs.length; i++) {
-      const item = state.bombs[i];
-      if (item.x === this.nextFrame.x && item.y === this.nextFrame.y) {
+      const bomb = state.bombs[i];
+      if (bomb.x === this.nextFrame.x && bomb.y === this.nextFrame.y) {
+        // If player has KICK, push the bomb
+        if (this.hasKick && !bomb.isSliding) {
+          bomb.kick(direction);
+          return;
+        }
         return;
       }
     }

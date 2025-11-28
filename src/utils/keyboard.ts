@@ -14,6 +14,7 @@ interface Keys {
   space: number;
   enter: number;
   escape: number;
+  shift: number;
   b: number;
   z: number;
   q: number;
@@ -35,6 +36,7 @@ export class Keyboard {
       space: 32,
       enter: 13,
       escape: 27,
+      shift: 16,
       b: 66,
       z: 90, // AZERTY: Z for up
       q: 81, // AZERTY: Q for left
@@ -106,6 +108,19 @@ export class Keyboard {
         if (e.keyCode === this.keys.escape && !this.handledOneShot.has(e.keyCode)) {
           this.handledOneShot.add(e.keyCode);
           dispatch({ type: Action.RESET });
+          return;
+        }
+        // Detonate remote bombs with Shift
+        if (e.keyCode === this.keys.shift && !this.handledOneShot.has(e.keyCode)) {
+          this.handledOneShot.add(e.keyCode);
+          if (multiplayerGame) {
+            networkClient.sendAction({ type: 'DETONATE' });
+          } else {
+            dispatch({
+              type: Action.DETONATE,
+              payload: { color: COLOR.WHITE },
+            });
+          }
           return;
         }
 

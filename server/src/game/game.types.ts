@@ -27,7 +27,7 @@ export interface LobbyState {
 }
 
 export interface PlayerAction {
-  type: 'MOVE' | 'DROP_BOMB' | 'STOP';
+  type: 'MOVE' | 'DROP_BOMB' | 'STOP' | 'DETONATE';
   direction?: number;
   playerId: string;
 }

@@ -170,6 +170,10 @@ export class GameService {
     this.gameState.dropBomb(playerId);
   }
 
+  detonate(playerId: string): void {
+    this.gameState.detonate(playerId);
+  }
+
   getGameSnapshot(): GameStateSnapshot {
     return this.gameState.getSnapshot();
   }
