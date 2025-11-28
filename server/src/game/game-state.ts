@@ -256,7 +256,7 @@ export class ServerGameState {
         case 4: nx++; break;  // RIGHT
       }
 
-      if (this.canMoveTo(nx, ny)) {
+      if (this.canMoveTo(nx, ny, player.id)) {
         player.x = nx;
         player.y = ny;
         player.direction = player.moveDirection;
@@ -435,7 +435,7 @@ export class ServerGameState {
     player.moveDirection = null;
   }
 
-  private canMoveTo(x: number, y: number): boolean {
+  private canMoveTo(x: number, y: number, excludePlayerId?: string): boolean {
     if (x < 1 || x > 13 || y < 1 || y > 11) return false;
     if (this.map[y][x] === 10) return false;
 
@@ -444,6 +444,12 @@ export class ServerGameState {
 
     const bomb = Array.from(this.bombs.values()).find(b => b.x === x && b.y === y);
     if (bomb) return false;
+
+    // Check collision with other players
+    const otherPlayer = Array.from(this.players.values()).find(
+      p => p.id !== excludePlayerId && p.alive && p.x === x && p.y === y
+    );
+    if (otherPlayer) return false;
 
     return true;
   }

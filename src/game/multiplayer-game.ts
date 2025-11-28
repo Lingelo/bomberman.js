@@ -11,7 +11,7 @@ import { DIRECTION, type Direction } from './direction';
 import { Bomb } from './bomb';
 import { Bonus } from './bonus';
 import { Wall } from './wall';
-import { BONUSTYPE } from './bonus-type';
+import type { BonusType } from './bonus-type';
 import { Flame } from './flame';
 import { CARDINAL, type Cardinal } from './cardinal';
 import type { CanvasContext, GameMap, WallGrid } from '../types';
@@ -28,6 +28,10 @@ interface ServerGameState {
     bombMax: number;
     bombUsed: number;
     radius: number;
+    speed: number;
+    hasKick: boolean;
+    hasPunch: boolean;
+    hasRemote: boolean;
   }>;
   bombs: Array<{
     id: string;
@@ -195,6 +199,9 @@ export class MultiplayerGame {
       character.bombMax = serverPlayer.bombMax;
       character.bombUsed = serverPlayer.bombUsed;
       character.radius = serverPlayer.radius;
+      character.hasKick = serverPlayer.hasKick;
+      character.hasPunch = serverPlayer.hasPunch;
+      character.hasRemote = serverPlayer.hasRemote;
 
       if (!serverPlayer.alive && character.status === CharacterStatus.ALIVE) {
         character.status = CharacterStatus.DEAD;
@@ -321,8 +328,8 @@ export class MultiplayerGame {
 
       let bonus = this.bonusInstances.get(key);
       if (!bonus) {
-        const bonusType = b.type === 0 ? BONUSTYPE.POWER : b.type === 1 ? BONUSTYPE.BOMB : BONUSTYPE.SPEED;
-        bonus = new Bonus(b.x, b.y, bonusType);
+        // Use server bonus type directly - types match between server and client
+        bonus = new Bonus(b.x, b.y, b.type as BonusType);
         this.bonusInstances.set(key, bonus);
       }
       bonus.render(canvasContext);
