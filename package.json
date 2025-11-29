@@ -17,9 +17,11 @@
     "server:dev": "cd server && npm run dev",
     "server:build": "cd server && npm run build",
     "server:start": "cd server && npm run start",
-    "server:docker:build": "cd server && npm run docker:build",
-    "server:docker:run": "cd server && npm run docker:run",
-    "server:docker:stop": "cd server && npm run docker:stop",
+    "docker:update": "docker-compose build --no-cache server && docker-compose up -d --no-deps server",
+    "docker:start": "docker-compose up -d server",
+    "docker:stop": "docker-compose stop server",
+    "docker:logs": "docker-compose logs -f server",
+    "docker:tunnel": "docker-compose up -d cloudflared && docker-compose logs -f cloudflared",
     "multiplayer": "concurrently \"npm run dev\" \"npm run server:dev\""
   },
   "keywords": [
