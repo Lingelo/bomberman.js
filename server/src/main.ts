@@ -1,5 +1,7 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { GameGateway } from './game/game.gateway';
 
@@ -7,7 +9,30 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
   app.useLogger(app.get(Logger));
-  app.enableCors();
+
+  // Security middleware
+  app.use(helmet({
+    contentSecurityPolicy: false, // Disabled for WebSocket compatibility
+  }));
+
+  // CORS configuration - use environment variable for allowed origins
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+    'http://localhost:5173',
+    'http://localhost:4173',
+    'https://lingelo.github.io',
+  ];
+
+  app.enableCors({
+    origin: allowedOrigins,
+    credentials: true,
+  });
+
+  // Global validation pipe
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+  }));
 
   const gameGateway = app.get(GameGateway);
 

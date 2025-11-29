@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { GameModule } from './game/game.module';
 import { AppController } from './app.controller';
 
@@ -22,6 +23,23 @@ import { AppController } from './app.controller';
             : undefined,
       },
     }),
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 1000,
+        limit: 20,
+      },
+      {
+        name: 'medium',
+        ttl: 10000,
+        limit: 100,
+      },
+      {
+        name: 'long',
+        ttl: 60000,
+        limit: 300,
+      },
+    ]),
     GameModule,
   ],
   controllers: [AppController],

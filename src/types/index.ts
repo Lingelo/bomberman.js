@@ -45,4 +45,4 @@ export interface GameAction {
 
 export type Listener = () => void;
 
-export type Unsubscribe = () => Listener[];
+export type Unsubscribe = () => void;

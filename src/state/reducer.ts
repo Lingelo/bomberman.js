@@ -29,20 +29,44 @@ const map = [
   [8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4],
 ];
 
-// Load options from localStorage
+// Safe sound playback (catches errors from autoplay restrictions)
+const playSound = (soundPromise: Promise<HTMLAudioElement>): void => {
+  soundPromise
+    .then((audio) => audio.play())
+    .catch(() => { /* Silently ignore autoplay restrictions */ });
+};
+
+// Load options from localStorage with safe parsing
 const loadVolume = (): number => {
-  const saved = localStorage.getItem('bomberman-volume');
-  return saved ? parseInt(saved, 10) : 30;
+  try {
+    const saved = localStorage.getItem('bomberman-volume');
+    if (!saved) return 30;
+    const parsed = parseInt(saved, 10);
+    return isNaN(parsed) ? 30 : Math.max(0, Math.min(100, parsed));
+  } catch {
+    return 30;
+  }
 };
 
 const loadKeymap = (): KeymapType => {
-  const saved = localStorage.getItem('bomberman-keymap');
-  return (saved as KeymapType) || 'ZQSD';
+  try {
+    const saved = localStorage.getItem('bomberman-keymap');
+    if (saved === 'ZQSD' || saved === 'WASD' || saved === 'ARROWS') {
+      return saved;
+    }
+    return 'ZQSD';
+  } catch {
+    return 'ZQSD';
+  }
 };
 
 const loadMusicEnabled = (): boolean => {
-  const saved = localStorage.getItem('bomberman-music');
-  return saved === null ? true : saved === 'true';
+  try {
+    const saved = localStorage.getItem('bomberman-music');
+    return saved === null ? true : saved === 'true';
+  } catch {
+    return true;
+  }
 };
 
 const initialState: GameState = {
@@ -64,21 +88,21 @@ const initialState: GameState = {
 export function reducer(action: GameAction, state: GameState = initialState): GameState {
   switch (action.type) {
     case Action.UP:
-      Music.menuBeep().then((song) => song.play());
+      playSound(Music.menuBeep());
       return {
         ...state,
         selectedOption: state.selectedOption - 1,
       };
 
     case Action.DOWN:
-      Music.menuBeep().then((song) => song.play());
+      playSound(Music.menuBeep());
       return {
         ...state,
         selectedOption: state.selectedOption + 1,
       };
 
     case Action.LEFT:
-      Music.menuBeep().then((song) => song.play());
+      playSound(Music.menuBeep());
       if (state.currentScreenCode === 'TITLE') {
         const newArena = (state.selectedArena - 1 + ARENAS.length) % ARENAS.length;
         return {
@@ -116,7 +140,7 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
       return state;
 
     case Action.RIGHT:
-      Music.menuBeep().then((song) => song.play());
+      playSound(Music.menuBeep());
       if (state.currentScreenCode === 'TITLE') {
         const newArena = (state.selectedArena + 1) % ARENAS.length;
         return {
@@ -327,13 +351,13 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
           // If player has PUNCH and is standing on their own bomb, throw it
           if (character.hasPunch && bombAtPosition && bombAtPosition.character.color === character.color) {
             bombAtPosition.throw(character.direction, 3);
-            Music.bombDrop().then((song) => song.play());
+            playSound(Music.bombDrop());
           } else if (!bombAtPosition && character.bombUsed < character.bombMax) {
             // Otherwise, drop a new bomb if no bomb here and we have bombs available
             character.bombUsed++;
             const bomb = new Bomb(character);
             state.bombs.push(bomb);
-            Music.bombDrop().then((song) => song.play());
+            playSound(Music.bombDrop());
           }
         }
       }
@@ -349,7 +373,7 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
         character.bombUsed--;
       }
       state.bombs.splice(state.bombs.indexOf(payload.bomb), 1);
-      Music.explosion().then((song) => song.play());
+      playSound(Music.explosion());
       return {
         ...state,
       };
@@ -389,7 +413,7 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
       if (character) {
         character.status = CharacterStatus.DEAD;
       }
-      Music.death().then((song) => song.play());
+      playSound(Music.death());
       return {
         ...state,
       };
@@ -401,7 +425,7 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
       if (player) {
         player.status = CharacterStatus.VICTORY;
       }
-      Music.win().then((song) => song.play());
+      playSound(Music.win());
       return {
         ...state,
         gameStatus: GAMESTATUS.END,
@@ -461,7 +485,7 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
       if (bonusIndex > -1) {
         state.bonus.splice(bonusIndex, 1);
       }
-      Music.bonus().then((song) => song.play());
+      playSound(Music.bonus());
 
       return {
         ...state,
@@ -533,7 +557,7 @@ export function reducer(action: GameAction, state: GameState = initialState): Ga
       }
 
       localStorage.setItem('bomberman-keymap', keymaps[newIndex]);
-      Music.menuBeep().then((song) => song.play());
+      playSound(Music.menuBeep());
       return {
         ...state,
         keymap: keymaps[newIndex],

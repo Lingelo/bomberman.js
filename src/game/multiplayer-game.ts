@@ -1,10 +1,7 @@
 import { Action } from '../state/actions';
-import { dispatch, getState, subscribe } from '../state/redux';
+import { dispatch } from '../state/redux';
 import { networkClient } from '../utils/network';
 import { Music } from '../utils/music';
-import { Ground } from './ground';
-import { Board } from './board';
-import { Block } from './block';
 import { CharacterStatus } from './character-status';
 import { Character } from './character';
 import { DIRECTION, type Direction } from './direction';
@@ -14,66 +11,11 @@ import { Wall } from './wall';
 import type { BonusType } from './bonus-type';
 import { Flame } from './flame';
 import { CARDINAL, type Cardinal } from './cardinal';
+import { BaseGame } from './base-game';
 import type { CanvasContext, GameMap, WallGrid } from '../types';
+import type { ServerGameState } from '../../shared/types/game-state';
 
-interface ServerGameState {
-  players: Array<{
-    id: string;
-    name: string;
-    color: number;
-    x: number;
-    y: number;
-    alive: boolean;
-    direction: number;
-    bombMax: number;
-    bombUsed: number;
-    radius: number;
-    speed: number;
-    hasKick: boolean;
-    hasPunch: boolean;
-    hasRemote: boolean;
-  }>;
-  bombs: Array<{
-    id: string;
-    x: number;
-    y: number;
-    playerColor: number;
-    radius: number;
-    timer: number;
-  }>;
-  walls: Array<{
-    x: number;
-    y: number;
-    destroyed: boolean;
-  }>;
-  bonus: Array<{
-    x: number;
-    y: number;
-    type: number;
-  }>;
-  blasts: Array<{
-    x: number;
-    y: number;
-  }>;
-}
-
-export class MultiplayerGame {
-  map: GameMap;
-  characters: Character[];
-  walls: WallGrid;
-  bonus: Bonus[];
-  bombs: Bomb[];
-  code: string;
-  ground!: Ground;
-  frameUpLeft!: Board;
-  frameUpRight!: Board;
-  frameUp!: Board;
-  frameBottomLeft!: Board;
-  frameBottomRight!: Board;
-  frameBottom!: Board;
-  frameLeft!: Board;
-  frameRight!: Board;
-  block!: Block;
+export class MultiplayerGame extends BaseGame {
   localPlayerColor: number;
   private gameEnded: boolean = false;
   private gameEndedReason: string = '';
@@ -93,23 +35,17 @@ export class MultiplayerGame {
   private previousAliveStates: Map<number, boolean> = new Map();
 
   constructor(map: GameMap, walls: WallGrid, characters: Character[], bonus: Bonus[], localPlayerColor: number) {
-    this.map = map;
-    this.characters = characters;
-    this.walls = walls;
-    this.bonus = bonus;
-    this.bombs = [];
+    super(map, walls, characters, bonus);
     this.code = 'MULTIPLAYER_GAME';
     this.localPlayerColor = localPlayerColor;
 
-    subscribe(() => {
-      this.walls = getState().walls;
-      this.characters = getState().characters;
-      this.bonus = getState().bonus;
-      this.bombs = getState().bombs;
-      this.map = getState().map;
-    });
-
     this.setupNetworkHandlers();
+  }
+
+  destroy(): void {
+    super.destroy();
+    this.bombInstances.clear();
+    this.bonusInstances.clear();
   }
 
   private setupNetworkHandlers(): void {
@@ -262,63 +198,10 @@ export class MultiplayerGame {
   }
 
   render(canvasContext: CanvasContext): void {
-    const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-    canvas.width = this.map[0] && this.map[0].length * 32;
-    canvas.height = this.map.length * 32;
+    if (!this.setupCanvas(canvasContext)) return;
 
-    canvasContext.screenWidth = canvas.width;
-    canvasContext.screenHeight = canvas.height;
-
-    canvasContext.ctx.fillStyle = '#0a0a0a';
-    canvasContext.ctx.fillRect(0, 0, canvasContext.screenWidth, canvasContext.screenHeight);
-
-    this.ground = new Ground(canvasContext);
-    this.frameUpLeft = new Board('UP_LEFT', canvasContext);
-    this.frameUpRight = new Board('UP_RIGHT', canvasContext);
-    this.frameUp = new Board('UP', canvasContext);
-    this.frameBottomLeft = new Board('BOTTOM_LEFT', canvasContext);
-    this.frameBottomRight = new Board('BOTTOM_RIGHT', canvasContext);
-    this.frameBottom = new Board('BOTTOM', canvasContext);
-    this.frameLeft = new Board('LEFT', canvasContext);
-    this.frameRight = new Board('RIGHT', canvasContext);
-    this.block = new Block(canvasContext);
-
-    for (let x = 0, l = this.map.length; x < l; x++) {
-      for (let y = 0, k = this.map[x].length; y < k; y++) {
-        switch (this.map[x][y]) {
-          case 2:
-            this.ground.render(x, y);
-            break;
-          case 12:
-            this.frameUpLeft.render(x, y);
-            break;
-          case 14:
-            this.frameUp.render(x, y);
-            break;
-          case 16:
-            this.frameUpRight.render(x, y);
-            break;
-          case 8:
-            this.frameBottomLeft.render(x, y);
-            break;
-          case 4:
-            this.frameBottomRight.render(x, y);
-            break;
-          case 6:
-            this.frameBottom.render(x, y);
-            break;
-          case 11:
-            this.frameLeft.render(x, y);
-            break;
-          case 9:
-            this.frameRight.render(x, y);
-            break;
-          case 10:
-            this.block.render(x, y);
-            break;
-        }
-      }
-    }
+    // Render map tiles
+    this.renderMap(canvasContext);
 
     // Render bonus with persistent instances for animation
     const currentBonusKeys = new Set<string>();
@@ -426,30 +309,7 @@ export class MultiplayerGame {
     ctx.fillText('Returning to lobby...', screenWidth / 2, screenHeight / 2 + 40);
   }
 
-  applyRetroEffects(canvasContext: CanvasContext): void {
-    const { ctx, screenWidth, screenHeight } = canvasContext;
-
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-    for (let y = 0; y < screenHeight; y += 3) {
-      ctx.fillRect(0, y, screenWidth, 1);
-    }
-
-    const gradient = ctx.createRadialGradient(
-      screenWidth / 2, screenHeight / 2, screenHeight / 3,
-      screenWidth / 2, screenHeight / 2, screenHeight
-    );
-    gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, screenWidth, screenHeight);
-
-    ctx.globalCompositeOperation = 'overlay';
-    ctx.fillStyle = 'rgba(0, 255, 255, 0.03)';
-    ctx.fillRect(0, 0, screenWidth, screenHeight);
-    ctx.globalCompositeOperation = 'source-over';
-  }
-
-  renderMultiplayerOverlay(canvasContext: CanvasContext): void {
+  private renderMultiplayerOverlay(canvasContext: CanvasContext): void {
     const { ctx, screenWidth } = canvasContext;
 
     ctx.font = '6px "Press Start 2P"';

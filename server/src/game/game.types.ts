@@ -1,46 +1,17 @@
-export enum LobbyStatus {
-  WAITING = 'WAITING',
-  IN_PROGRESS = 'IN_PROGRESS',
-}
+// Re-export shared types for backwards compatibility
+export {
+  PlayerColor,
+  SPAWN_POSITIONS,
+} from '../../../shared/constants/colors';
 
-export enum PlayerColor {
-  WHITE = 0,
-  BLACK = 1,
-  RED = 2,
-  BLUE = 3,
-}
+export {
+  LobbyStatus,
+  LobbyState,
+  LobbyPlayer,
+  GameStateUpdate,
+} from '../../../shared/types/game-state';
 
-export interface Player {
-  id: string;
-  name: string;
-  color: PlayerColor;
-  ready: boolean;
-  x: number;
-  y: number;
-  alive: boolean;
-}
+export type { PlayerAction } from '../../../shared/types/actions';
 
-export interface LobbyState {
-  status: LobbyStatus;
-  players: Player[];
-  maxPlayers: number;
-}
-
-export interface PlayerAction {
-  type: 'MOVE' | 'DROP_BOMB' | 'STOP' | 'DETONATE';
-  direction?: number;
-  playerId: string;
-}
-
-export interface GameStateUpdate {
-  players: Player[];
-  bombs?: Array<{ x: number; y: number; playerId: string; timer: number }>;
-  blasts?: Array<{ x: number; y: number }>;
-}
-
-export const SPAWN_POSITIONS: Record<PlayerColor, { x: number; y: number }> = {
-  [PlayerColor.WHITE]: { x: 1, y: 1 },
-  [PlayerColor.BLACK]: { x: 1, y: 11 },
-  [PlayerColor.BLUE]: { x: 13, y: 1 },
-  [PlayerColor.RED]: { x: 13, y: 11 },
-};
+// Alias for backwards compatibility
+export type Player = import('../../../shared/types/game-state').LobbyPlayer;

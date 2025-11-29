@@ -8,15 +8,34 @@ import {
   OnGatewayDisconnect,
   ConnectedSocket,
 } from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
+import { Logger, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import sanitizeHtml from 'sanitize-html';
 import { RoomManager } from './room-manager';
-import { PlayerAction, SPAWN_POSITIONS } from './game.types';
+import { SPAWN_POSITIONS } from './game.types';
 import { GameStateSnapshot, ServerPlayer } from './game-state';
+import { JoinRoomDto, PlayerActionDto, ActionType } from './dto';
+
+// Sanitize player/room names
+function sanitizeName(name: string): string {
+  return sanitizeHtml(name, {
+    allowedTags: [],
+    allowedAttributes: {},
+  }).substring(0, 30).trim() || 'Player';
+}
+
+// Redact sensitive data for logging
+function redactSocketId(id: string): string {
+  return id.substring(0, 8) + '***';
+}
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || [
+      'http://localhost:5173',
+      'http://localhost:4173',
+      'https://lingelo.github.io',
+    ],
     credentials: true,
   },
 })
@@ -59,7 +78,7 @@ export class GameGateway
   }
 
   handleConnection(client: Socket): void {
-    this.logger.log(`Client connected`, { socketId: client.id });
+    this.logger.log(`Client connected`, { socketId: redactSocketId(client.id) });
     client.emit('room-list', this.roomManager.getRoomList());
   }
 
@@ -68,7 +87,7 @@ export class GameGateway
 
     if (result) {
       this.logger.log(`Client disconnected and removed from room`, {
-        socketId: client.id,
+        socketId: redactSocketId(client.id),
         roomId: result.roomId,
       });
 
@@ -96,9 +115,10 @@ export class GameGateway
   }
 
   @SubscribeMessage('join-room')
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   handleJoinRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { roomId: string; name: string }
+    @MessageBody() data: JoinRoomDto
   ): void {
     const room = this.roomManager.getRoom(data.roomId);
 
@@ -114,7 +134,9 @@ export class GameGateway
       return;
     }
 
-    const player = this.roomManager.joinRoom(data.roomId, client.id, data.name);
+    // Sanitize player name
+    const sanitizedName = sanitizeName(data.name);
+    const player = this.roomManager.joinRoom(data.roomId, client.id, sanitizedName);
 
     if (player) {
       client.join(data.roomId);
@@ -198,9 +220,10 @@ export class GameGateway
   }
 
   @SubscribeMessage('player-action')
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   handlePlayerAction(
     @ConnectedSocket() client: Socket,
-    @MessageBody() action: PlayerAction
+    @MessageBody() action: PlayerActionDto
   ): void {
     const room = this.roomManager.getPlayerRoom(client.id);
     if (!room || room.getStatus() !== 'IN_PROGRESS') {
@@ -210,14 +233,21 @@ export class GameGateway
     const player = room.getPlayer(client.id);
     if (!player) return;
 
-    if (action.type === 'MOVE' && action.direction !== undefined) {
-      this.roomManager.startMove(client.id, action.direction);
-    } else if (action.type === 'STOP') {
-      this.roomManager.stopMove(client.id);
-    } else if (action.type === 'DROP_BOMB') {
-      this.roomManager.dropBomb(client.id);
-    } else if (action.type === 'DETONATE') {
-      this.roomManager.detonate(client.id);
+    switch (action.type) {
+      case ActionType.MOVE:
+        if (action.direction !== undefined) {
+          this.roomManager.startMove(client.id, action.direction);
+        }
+        break;
+      case ActionType.STOP:
+        this.roomManager.stopMove(client.id);
+        break;
+      case ActionType.DROP_BOMB:
+        this.roomManager.dropBomb(client.id);
+        break;
+      case ActionType.DETONATE:
+        this.roomManager.detonate(client.id);
+        break;
     }
   }
 

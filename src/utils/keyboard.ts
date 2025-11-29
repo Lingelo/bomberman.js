@@ -26,6 +26,8 @@ export class Keyboard {
   private keys: Keys;
   private pressedKeys: Set<number>;
   private handledOneShot: Set<number>;
+  private keyUpHandler: ((e: KeyboardEvent) => void) | null = null;
+  private keyDownHandler: ((e: KeyboardEvent) => void) | null = null;
 
   constructor() {
     this.keys = {
@@ -48,8 +50,24 @@ export class Keyboard {
     this.handledOneShot = new Set();
   }
 
+  unbind(): void {
+    if (this.keyUpHandler) {
+      removeEventListener('keyup', this.keyUpHandler);
+      this.keyUpHandler = null;
+    }
+    if (this.keyDownHandler) {
+      removeEventListener('keydown', this.keyDownHandler);
+      this.keyDownHandler = null;
+    }
+    this.pressedKeys.clear();
+    this.handledOneShot.clear();
+  }
+
   bind(): void {
-    addEventListener('keyup', (e: KeyboardEvent) => {
+    // Clean up any existing listeners first
+    this.unbind();
+
+    this.keyUpHandler = (e: KeyboardEvent) => {
       this.pressedKeys.delete(e.keyCode);
       this.handledOneShot.delete(e.keyCode);
 
@@ -81,9 +99,9 @@ export class Keyboard {
           }
         }
       }
-    }, false);
+    };
 
-    addEventListener('keydown', (e: KeyboardEvent) => {
+    this.keyDownHandler = (e: KeyboardEvent) => {
       this.pressedKeys.add(e.keyCode);
 
       const state = getState();
@@ -193,7 +211,11 @@ export class Keyboard {
           });
           break;
       }
-    }, false);
+    };
+
+    // Register event listeners
+    addEventListener('keyup', this.keyUpHandler, false);
+    addEventListener('keydown', this.keyDownHandler, false);
   }
 
   listen(): void {

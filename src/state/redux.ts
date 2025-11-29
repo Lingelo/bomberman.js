@@ -14,7 +14,12 @@ const dispatch = (action: GameAction): void => {
 
 const subscribe = (listener: Listener): Unsubscribe => {
   listeners.push(listener);
-  return () => listeners.filter((lis) => lis !== listener);
+  return () => {
+    const index = listeners.indexOf(listener);
+    if (index > -1) {
+      listeners.splice(index, 1);
+    }
+  };
 };
 
 export { getState, dispatch, subscribe };
