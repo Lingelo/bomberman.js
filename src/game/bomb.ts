@@ -1,9 +1,9 @@
 import { Sprite } from '../utils/sprite';
 import { Action } from '../state/actions';
 import { dispatch, getState } from '../state/redux';
+import { DIRECTION, type Direction } from './direction';
 import type { CanvasContext, GameMap, WallGrid } from '../types';
 import type { Character } from './character';
-import { DIRECTION, type Direction } from './direction';
 
 export class Bomb {
   character: Character;

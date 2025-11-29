@@ -1,10 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Action } from './actions';
 import { GAMESTATUS } from '../game/game-status';
 import { COLOR } from '../game/color';
 import { BONUSTYPE } from '../game/bonus-type';
 import { CharacterStatus } from '../game/character-status';
-import type { GameState, GameAction } from '../types';
+import { Action } from './actions';
+import { reducer } from './reducer';
+import type { GameAction, GameState } from '../types';
+import type { Bonus } from '../game/bonus';
 
 // Mock the Music module to avoid audio issues in tests
 vi.mock('../utils/music', () => ({
@@ -28,7 +30,6 @@ vi.mock('./redux', () => ({
 }));
 
 // Import reducer after mocks are set up
-import { reducer } from './reducer';
 
 // Mock localStorage
 const localStorageMock = {
@@ -328,7 +329,7 @@ describe('reducer', () => {
       );
 
       // Add a bonus to the state
-      newState.bonus = [{ x: 1, y: 1, type: BONUSTYPE.POWER }] as any;
+      newState.bonus = [{ x: 1, y: 1, type: BONUSTYPE.POWER }] as unknown as Bonus[];
 
       newState = reducer(
         {

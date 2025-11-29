@@ -8,10 +8,10 @@ import { DIRECTION, type Direction } from './direction';
 import { Bomb } from './bomb';
 import { Bonus } from './bonus';
 import { Wall } from './wall';
-import type { BonusType } from './bonus-type';
 import { Flame } from './flame';
 import { CARDINAL, type Cardinal } from './cardinal';
 import { BaseGame } from './base-game';
+import type { BonusType } from './bonus-type';
 import type { CanvasContext, GameMap, WallGrid } from '../types';
 import type { ServerGameState } from '../../shared/types/game-state';
 

@@ -1,10 +1,10 @@
 import { Action } from '../state/actions';
 import { dispatch, getState, subscribe } from '../state/redux';
+import { TILE } from '../../shared/constants/maps';
 import { Ground } from './ground';
 import { Board } from './board';
 import { Block } from './block';
 import { CharacterStatus } from './character-status';
-import { TILE } from '../../shared/constants/maps';
 import type { CanvasContext, GameMap, WallGrid, Unsubscribe } from '../types';
 import type { Character } from './character';
 import type { Bonus } from './bonus';
@@ -29,7 +29,7 @@ export abstract class BaseGame {
   protected frameLeft: Board | null = null;
   protected frameRight: Board | null = null;
   protected block: Block | null = null;
-  protected cachedGradient: CanvasGradient | null = null;
+  protected cachedGradient: globalThis.CanvasGradient | null = null;
   protected unsubscribe: Unsubscribe | null = null;
 
   constructor(map: GameMap, walls: WallGrid, characters: Character[], bonus: Bonus[]) {

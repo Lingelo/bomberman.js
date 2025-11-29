@@ -52,11 +52,11 @@ export class Keyboard {
 
   unbind(): void {
     if (this.keyUpHandler) {
-      removeEventListener('keyup', this.keyUpHandler);
+      window.removeEventListener('keyup', this.keyUpHandler);
       this.keyUpHandler = null;
     }
     if (this.keyDownHandler) {
-      removeEventListener('keydown', this.keyDownHandler);
+      window.removeEventListener('keydown', this.keyDownHandler);
       this.keyDownHandler = null;
     }
     this.pressedKeys.clear();
